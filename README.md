@@ -1,85 +1,22 @@
-Inventory Management System
+# Inventory Management System
 
-This is a full-stack Inventory Management System developed using Java Spring Boot for the backend and HTML, CSS, JavaScript, and Bootstrap for the frontend. The system helps manage products, stock, and users efficiently with secure authentication.
+This project is a full-stack Inventory Management System developed using Java Spring Boot for backend and HTML, CSS, JavaScript, and Bootstrap for frontend.
 
-Features
+## Technologies Used
+Backend: Java, Spring Boot, Spring Security  
+Frontend: HTML, CSS, JavaScript, Bootstrap  
+Database: MySQL  
+Tools: IntelliJ, Postman, GitHub  
 
-User authentication using JWT
+## How to Run
+1. Open backend project in IntelliJ  
+2. Configure MySQL in application.properties  
+3. Run the Spring Boot application  
+4. Open frontend files in browser  
+5. Test APIs using Postman  
 
-Add, update, delete, and view inventory items
+## License
+MIT License
 
-Role-based access control
-
-Backend RESTful APIs
-
-Responsive frontend UI
-
-Data stored in MySQL database
-
-Technologies Used
-Backend
-
-Java
-
-Spring Boot
-
-Spring Security
-
-RESTful APIs
-
-Java Mail / Spring Mail
-
-Maven
-
-Frontend
-
-HTML5
-
-CSS3
-
-JavaScript
-
-Bootstrap 5
-
-Database
-
-MySQL
-
-Tools
-
-IntelliJ
-
-Postman
-
-Git & GitHub
-
-Project Structure
-
-Backend source code is inside src/main/java
-
-Frontend files are inside the frontend folder
-
-Configuration files include pom.xml and application properties
-
-How to Run the Project
-
-Clone the repository
-
-Open the backend project in IntelliJ
-
-Configure MySQL database in application.properties
-
-Run the Spring Boot application
-
-Open the frontend files in a browser
-
-Test APIs using Postman
-
-License
-
-This project is licensed under the MIT License.
-
-Author
-
+## Author
 Rajashree
-Year: 2025
