@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Reports · Inventory Admin Panel</title>
+
+    <!-- BOOTSTRAP 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <style>
+        :root {
+          --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+          /* light theme defaults */
+          --bg: #f3f4f6;
+          --bg-card: #ffffff;
+          --bg-sidebar: #0f172a;
+          --bg-sidebar-soft: #020617;
+
+          --border-soft: #e5e7eb;
+          --border-strong: #cbd5f5;
+
+          --text-main: #0f172a;
+          --text-soft: #4b5563;
+          --text-muted: #9ca3af;
+
+          --accent: #4f46e5;
+          --accent-soft: #e0e7ff;
+          --accent-strong: #4338ca;
+
+          --accent-warm: #f97316;
+          --danger: #dc2626;
+
+          --radius-card: 16px;
+          --radius-pill: 999px;
+
+          --shadow-soft: 0 14px 28px rgba(15,23,42,0.12);
+          --shadow-medium: 0 18px 40px rgba(15,23,42,0.16);
+
+          --transition-fast: 0.16s ease;
+          --transition-med: 0.22s ease;
+        }
+
+        body[data-theme="dark"] {
+          --bg: #020617;
+          --bg-card: #020617;
+          --bg-sidebar: #020617;
+          --bg-sidebar-soft: #020617;
+
+          --border-soft: #1f2937;
+          --border-strong: #4b5563;
+
+          --text-main: #e5e7eb;
+          --text-soft: #cbd5f5;
+          --text-muted: #9ca3af;
+
+          --accent: #6366f1;
+          --accent-soft: rgba(79,70,229,0.15);
+          --accent-strong: #a5b4fc;
+
+          --accent-warm: #fb923c;
+          --danger: #f97373;
+
+          --shadow-soft: 0 20px 40px rgba(0,0,0,0.75);
+          --shadow-medium: 0 28px 60px rgba(0,0,0,0.85);
+        }
+
+        * { box-sizing:border-box; }
+
+        html, body { height:100%; margin:0; }
+
+        body {
+          min-height:100vh;
+          font-family:var(--font-main);
+          background:
+            radial-gradient(circle at top left, rgba(79,70,229,0.15), transparent 55%),
+            radial-gradient(circle at bottom right, rgba(249,115,22,0.18), transparent 55%),
+            var(--bg);
+          color:var(--text-main);
+          display:flex;
+        }
+
+        .small { font-size:11px; color:var(--text-muted); }
+
+        /* SIDEBAR */
+        .sidebar {
+          width:220px;
+          background:linear-gradient(180deg,var(--bg-sidebar-soft),var(--bg-sidebar));
+          color:#e5e7eb;
+          padding:16px 14px 16px;
+          display:flex;
+          flex-direction:column;
+          gap:16px;
+          box-shadow:4px 0 22px rgba(15,23,42,0.75);
+          z-index:10;
+        }
+
+        .sidebar-header {
+          display:flex;
+          align-items:center;
+          gap:10px;
+          margin-bottom:6px;
+        }
+
+        .logo {
+          width:30px;
+          height:30px;
+          border-radius:10px;
+          background:conic-gradient(from 210deg,#4f46e5,#22c55e,#f97316,#4f46e5);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-weight:700;
+          font-size:14px;
+          color:#f9fafb;
+          box-shadow:0 0 18px rgba(129,140,248,0.9);
+        }
+
+        .brand-text {
+          display:flex;
+          flex-direction:column;
+          gap:2px;
+        }
+
+        .brand-title {
+          font-size:14px;
+          font-weight:600;
+          letter-spacing:0.08em;
+          text-transform:uppercase;
+        }
+
+        .brand-sub {
+          font-size:11px;
+          color:#9ca3af;
+        }
+
+        .nav {
+          margin-top:10px;
+          display:flex;
+          flex-direction:column;
+          gap:4px;
+        }
+
+        .nav-group-label {
+          font-size:11px;
+          color:#6b7280;
+          text-transform:uppercase;
+          letter-spacing:0.14em;
+          margin-bottom:4px;
+        }
+
+        .nav-item {
+          display:flex;
+          align-items:center;
+          gap:8px;
+          padding:7px 8px;
+          border-radius:10px;
+          color:#e5e7eb;
+          font-size:13px;
+          cursor:pointer;
+          transition:background var(--transition-fast), transform var(--transition-fast), color var(--transition-fast);
+        }
+
+        .nav-item-icon {
+          width:22px;
+          height:22px;
+          border-radius:999px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:14px;
+          background:rgba(15,23,42,0.6);
+        }
+
+        .nav-item span { flex:1; }
+
+        .nav-item:hover {
+          background:rgba(148,163,184,0.16);
+          transform:translateX(2px);
+        }
+
+        .nav-item.active {
+          background:rgba(79,70,229,0.25);
+          color:#e0e7ff;
+        }
+
+        .nav-item.active .nav-item-icon {
+          background:#4f46e5;
+        }
+
+        .sidebar-footer {
+          margin-top:auto;
+          border-top:1px solid rgba(31,41,55,0.8);
+          padding-top:8px;
+          font-size:11px;
+          color:#6b7280;
+        }
+
+        /* MAIN AREA */
+        .main {
+          flex:1;
+          padding:16px 18px 18px;
+          display:flex;
+          flex-direction:column;
+          gap:12px;
+          min-width:0;
+        }
+
+        .topbar {
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:10px;
+          flex-wrap:wrap;
+        }
+
+        .top-left {
+          display:flex;
+          flex-direction:column;
+          gap:4px;
+        }
+
+        .page-title {
+          font-size:20px;
+          font-weight:600;
+          display:flex;
+          align-items:center;
+          gap:8px;
+        }
+
+        .page-tag {
+          font-size:10px;
+          padding:2px 8px;
+          border-radius:var(--radius-pill);
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.85);
+          color:var(--text-muted);
+          text-transform:uppercase;
+          letter-spacing:0.12em;
+        }
+
+        body[data-theme="dark"] .page-tag {
+          background:rgba(15,23,42,0.9);
+          color:var(--text-soft);
+          border-color:var(--border-strong);
+        }
+
+        .welcome {
+          font-size:13px;
+          color:var(--text-soft);
+        }
+
+        .top-right {
+          display:flex;
+          align-items:center;
+          gap:8px;
+          flex-wrap:wrap;
+        }
+
+        .search-shell {
+          position:relative;
+          width:230px;
+        }
+
+        .search-input {
+          width:100%;
+          padding:6px 26px;
+          border-radius:999px;
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.95);
+          font-size:12px;
+          outline:none;
+          color:var(--text-main);
+          transition:border var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+        }
+
+        .search-input::placeholder { color:var(--text-muted); }
+
+        .search-input:focus {
+          border-color:var(--accent);
+          background:#ffffff;
+          box-shadow:0 0 0 1px var(--accent-soft);
+          transform:translateY(-1px);
+        }
+
+        body[data-theme="dark"] .search-input {
+          background:rgba(15,23,42,0.95);
+          border-color:var(--border-soft);
+          color:var(--text-soft);
+        }
+
+        .search-icon {
+          position:absolute;
+          left:8px;
+          top:50%;
+          transform:translateY(-50%);
+          font-size:12px;
+          color:var(--text-muted);
+        }
+
+        .theme-toggle {
+          width:50px;
+          height:24px;
+          border-radius:999px;
+          border:1px solid var(--border-soft);
+          background:#e5e7eb;
+          display:flex;
+          align-items:center;
+          padding:2px;
+          cursor:pointer;
+          position:relative;
+          transition:background var(--transition-fast), border var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .theme-knob {
+          width:20px;
+          height:20px;
+          border-radius:999px;
+          background:#ffffff;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:11px;
+          box-shadow:0 2px 5px rgba(15,23,42,0.3);
+          transform:translateX(0);
+          transition:transform var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+          color:#f97316;
+        }
+
+        body[data-theme="dark"] .theme-toggle {
+          background:#020617;
+          border-color:var(--border-strong);
+          box-shadow:0 10px 22px rgba(0,0,0,0.7);
+        }
+
+        body[data-theme="dark"] .theme-knob {
+          transform:translateX(24px);
+          background:#0f172a;
+          color:#facc15;
+        }
+
+        .user-pill {
+          display:flex;
+          align-items:center;
+          gap:6px;
+          padding:4px 8px;
+          border-radius:var(--radius-pill);
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.9);
+          font-size:11px;
+          color:var(--text-soft);
+        }
+
+        body[data-theme="dark"] .user-pill {
+          background:rgba(15,23,42,0.9);
+          color:var(--text-soft);
+        }
+
+        .user-avatar {
+          width:22px;
+          height:22px;
+          border-radius:999px;
+          background:linear-gradient(135deg,#4f46e5,#f97316);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:12px;
+          font-weight:600;
+          color:#f9fafb;
+        }
+
+        .btn-logout {
+          padding:5px 9px;
+          border-radius:var(--radius-pill);
+          border:1px solid rgba(248,113,113,0.8);
+          background:#fef2f2;
+          font-size:11px;
+          color:#b91c1c;
+          display:flex;
+          align-items:center;
+          gap:4px;
+          cursor:pointer;
+          transition:background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+        }
+
+        .btn-logout:hover {
+          background:#fee2e2;
+          transform:translateY(-1px);
+          box-shadow:0 6px 16px rgba(239,68,68,0.32);
+        }
+
+        body[data-theme="dark"] .btn-logout {
+          background:rgba(127,29,29,0.1);
+          color:#fecaca;
+        }
+
+        /* REPORT WORKSPACE */
+        .workspace {
+          border-radius:var(--radius-card);
+          background:var(--bg-card);
+          border:1px solid var(--border-soft);
+          box-shadow:var(--shadow-soft);
+          padding:14px 14px 16px;
+          min-height:0;
+          display:flex;
+          flex-direction:column;
+          gap:10px;
+        }
+
+        .workspace-header {
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:10px;
+          flex-wrap:wrap;
+        }
+
+        .workspace-title {
+          font-size:15px;
+          font-weight:600;
+        }
+
+        .workspace-sub {
+          font-size:12px;
+          color:var(--text-muted);
+        }
+
+        .pill {
+          display:inline-flex;
+          align-items:center;
+          padding:3px 8px;
+          border-radius:999px;
+          border:1px solid var(--border-soft);
+          font-size:11px;
+          color:var(--text-soft);
+          background:rgba(248,250,252,0.9);
+        }
+
+        body[data-theme="dark"] .pill {
+          background:rgba(15,23,42,0.9);
+        }
+
+        .card-soft {
+          border-radius:12px;
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.95);
+          padding:12px 14px;
+          margin-top:8px;
+        }
+
+        body[data-theme="dark"] .card-soft {
+          background:rgba(15,23,42,0.9);
+        }
+
+        .section-label {
+          font-size:11px;
+          font-weight:600;
+          text-transform:uppercase;
+          letter-spacing:0.08em;
+          color:var(--text-muted);
+          margin-bottom:6px;
+        }
+
+        .btn-accent {
+          padding:8px 14px;
+          border-radius:var(--radius-pill);
+          border:none;
+          background:linear-gradient(90deg,#4f46e5,#22c55e);
+          font-size:13px;
+          font-weight:500;
+          color:#f9fafb;
+          cursor:pointer;
+          display:inline-flex;
+          align-items:center;
+          gap:6px;
+          box-shadow:0 6px 14px rgba(79,70,229,0.35);
+          transition:transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+        }
+
+        .btn-accent:hover {
+          transform:translateY(-1px);
+          box-shadow:0 10px 20px rgba(79,70,229,0.55);
+        }
+
+        .feedback {
+          margin-top:8px;
+          padding:8px 10px;
+          border-radius:12px;
+          font-size:12px;
+          display:none;
+        }
+
+        .feedback.ok {
+          display:block;
+          background:#ecfdf3;
+          border:1px solid #bbf7d0;
+          color:#166534;
+        }
+
+        .feedback.error {
+          display:block;
+          background:#fef2f2;
+          border:1px solid #fecaca;
+          color:#b91c1c;
+        }
+
+        body[data-theme="dark"] .feedback.ok {
+          background:rgba(22,163,74,0.16);
+          border-color:rgba(34,197,94,0.9);
+          color:#bbf7d0;
+        }
+
+        body[data-theme="dark"] .feedback.error {
+          background:rgba(127,29,29,0.3);
+          border-color:rgba(248,113,113,0.9);
+          color:#fecaca;
+        }
+
+        @media (max-width:720px) {
+          .topbar {
+            flex-direction:column;
+            align-items:flex-start;
+          }
+          .top-right .search-shell {
+            width:100%;
+          }
+        }
+    </style>
+</head>
+<body data-theme="light">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div>
+        <div class="sidebar-header">
+            <div class="logo">IN</div>
+            <div class="brand-text">
+                <div class="brand-title">Inventory</div>
+                <div class="brand-sub">Admin Panel</div>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <div class="nav-group-label">Main</div>
+
+            <div class="nav-item" onclick="window.location.href='./dashboard.html'">
+                <div class="nav-item-icon">📊</div>
+                <span>Dashboard</span>
+            </div>
+
+            <div class="nav-item" onclick="window.location.href='./products.html'">
+                <div class="nav-item-icon">📦</div>
+                <span>Products</span>
+            </div>
+
+            <div class="nav-item" onclick="window.location.href='./staff.html'">
+                <div class="nav-item-icon">👥</div>
+                <span>Staff</span>
+            </div>
+
+            <div class="nav-item active">
+                <div class="nav-item-icon">📂</div>
+                <span>Reports</span>
+            </div>
+
+<!--            <div class="nav-item" onclick="window.location.href='./customer-order.html'">-->
+<!--                <div class="nav-item-icon">🛒</div>-->
+<!--                <span>Customer Orders</span>-->
+<!--            </div>-->
+        </nav>
+    </div>
+
+    <div class="sidebar-footer">
+        <div>Inventory Admin · v1.0</div>
+        <div class="small">Only admins can access this panel.</div>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+    <!-- TOP BAR -->
+    <header class="topbar">
+        <div class="top-left">
+            <div class="page-title">
+                Reports
+                <span class="page-tag" id="pageTag">Stock export</span>
+            </div>
+            <div class="welcome">
+                Logged in as <span id="welcomeName">Admin</span>.
+            </div>
+        </div>
+
+        <div class="top-right">
+            <div class="search-shell">
+                <span class="search-icon">📝</span>
+                <input id="noteInput" class="search-input" type="text"
+                       placeholder="Optional note (e.g. 'month end report')" />
+            </div>
+
+            <div id="themeToggle" class="theme-toggle" title="Dark / Light">
+                <div class="theme-knob">☀</div>
+            </div>
+
+            <div class="user-pill">
+                <div id="userAvatar" class="user-avatar">A</div>
+                <span id="userNameLabel">Admin</span>
+            </div>
+
+            <button id="logoutBtn" class="btn-logout" type="button">
+                <span>⏏</span>
+                <span>Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- WORKSPACE -->
+    <section class="workspace">
+        <div class="workspace-header">
+            <div>
+                <div class="workspace-title">Stock report download</div>
+                <div class="workspace-sub">
+                    Download full stock details.
+                </div>
+            </div>
+            <span class="pill" id="lastGeneratedPill">Last download: —</span>
+        </div>
+
+        <div class="card-soft">
+            <div class="section-label">Export</div>
+            <p class="small mb-2">
+                Click the button below to download.</p>
+
+            <button type="button" class="btn-accent" onclick="downloadStockReport()">
+                📥 Download stock report
+            </button>
+
+            <div id="reportMsg" class="feedback"></div>
+        </div>
+    </section>
+</main>
+
+<!-- BOOTSTRAP JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const API_BASE = 'http://localhost:8080';
+
+    // 🔴 VERY IMPORTANT: put your REAL, WORKING stock-download URL here.
+    // Example guesses (choose the one you actually used before):
+    //   '/api/stock/download'
+    //   '/api/stock/export'
+    //   '/api/stock/downloadExcel'
+    //
+    // If your old UI had something like:
+    //   const STOCK_DOWNLOAD_URL = '/api/stock/download';
+    // use the same here.
+    const STOCK_REPORT_URL = API_BASE + '/api/stock/download'; // ← change this if needed
+
+    // ---------- AUTH GUARD ----------
+    function getToken(){
+      try {
+        return localStorage.getItem('auth_token') || localStorage.getItem('token');
+      } catch (e) { return null; }
+    }
+
+    const token  = getToken();
+    const rights = (localStorage.getItem('rights') || '').toLowerCase();
+
+    if (!token) {
+      window.location.href = API_BASE + '/login.html';
+    } else if (rights !== 'admin') {
+      alert('Only admin can access Reports page');
+      window.location.href = API_BASE + '/login.html';
+    }
+
+    // TOPBAR USER INFO
+    (function initUserInfo(){
+      let email = null;
+      try {
+        email = localStorage.getItem('user_email') || localStorage.getItem('email');
+      } catch(e){}
+
+      const name = email || 'admin';
+      const baseName = name.split('@')[0];
+
+      const welcome   = document.getElementById('welcomeName');
+      const userLabel = document.getElementById('userNameLabel');
+      const avatar    = document.getElementById('userAvatar');
+
+      if (welcome)   welcome.textContent = baseName;
+      if (userLabel) userLabel.textContent = baseName;
+      if (avatar)    avatar.textContent = baseName.charAt(0).toUpperCase();
+
+      const tag = document.getElementById('pageTag');
+      if (tag) tag.textContent = 'Stock export · ' + new Date().toLocaleDateString();
+    })();
+
+    // ---------- THEME ----------
+    const bodyEl     = document.body;
+    const themeToggle= document.getElementById('themeToggle');
+    const themeKnob  = themeToggle.querySelector('.theme-knob');
+
+    function applyTheme(theme) {
+      bodyEl.setAttribute('data-theme', theme);
+      themeKnob.textContent = theme === 'light' ? '☀' : '🌙';
+      try { localStorage.setItem('ui_theme', theme); } catch(e){}
+    }
+
+    (function initTheme() {
+      const stored = localStorage.getItem('ui_theme');
+      applyTheme(stored === 'dark' ? 'dark' : 'light');
+    })();
+
+    themeToggle.addEventListener('click', () => {
+      const current = bodyEl.getAttribute('data-theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      applyTheme(next);
+    });
+
+    // ---------- API HELPER ----------
+    async function apiCall(url, options = {}) {
+      const t = getToken();
+      const headers = options.headers || {};
+      if (t) headers['Authorization'] = 'Bearer ' + t;
+      return fetch(url, { ...options, headers });
+    }
+
+    // ---------- UI MSG ----------
+    const reportMsg = document.getElementById('reportMsg');
+    const lastPill  = document.getElementById('lastGeneratedPill');
+
+    function showMsg(text, ok){
+      reportMsg.textContent = text || '';
+      if (!text) {
+        reportMsg.className = 'feedback';
+        return;
+      }
+      reportMsg.className = 'feedback ' + (ok ? 'ok' : 'error');
+    }
+
+    // ---------- DOWNLOAD STOCK REPORT ----------
+    async function downloadStockReport(){
+      showMsg('Requesting stock report from server…', true);
+
+      try {
+        const res = await apiCall(STOCK_REPORT_URL, { method: 'GET' });
+        if (!res.ok) {
+          const text = await res.text().catch(()=>res.statusText);
+          showMsg('Download failed: ' + (text || ('status ' + res.status)), false);
+          return;
+        }
+
+        const blob = await res.blob();
+
+        // try to get filename from header
+        let fileName = '';
+        const cd = res.headers.get('Content-Disposition') || res.headers.get('content-disposition');
+        if (cd && cd.includes('filename=')) {
+          const match = cd.match(/filename="?([^";]+)"?/i);
+          if (match && match[1]) fileName = match[1];
+        }
+        if (!fileName) {
+          const today = new Date().toISOString().slice(0,10);
+          fileName = 'stock-report-' + today + '.xlsx';
+        }
+
+        const urlBlob = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = urlBlob;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(urlBlob);
+
+        const now = new Date().toLocaleString();
+        lastPill.textContent = 'Last download: ' + now;
+        showMsg('Download started: ' + fileName, true);
+      } catch (e) {
+        console.error(e);
+        showMsg('Network error while downloading stock report.', false);
+      }
+    }
+
+    // ---------- LOGOUT ----------
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      apiCall(API_BASE + '/api/auth/logout', {method:'POST'}).finally(() => {
+        try {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('token');
+          localStorage.removeItem('rights');
+          localStorage.removeItem('user_email');
+          localStorage.removeItem('email');
+        } catch(e){}
+        window.location.href = API_BASE + '/login.html';
+      });
+    });
+</script>
+</body>
+</html>

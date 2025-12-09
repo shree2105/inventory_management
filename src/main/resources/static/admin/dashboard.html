@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Inventory Admin Panel</title>
+
+    <style>
+        :root {
+          --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+          /* light theme defaults */
+          --bg: #f3f4f6;
+          --bg-card: #ffffff;
+          --bg-sidebar: #0f172a;
+          --bg-sidebar-soft: #020617;
+
+          --border-soft: #e5e7eb;
+          --border-strong: #cbd5f5;
+
+          --text-main: #0f172a;
+          --text-soft: #4b5563;
+          --text-muted: #9ca3af;
+
+          --accent: #4f46e5;        /* indigo */
+          --accent-soft: #e0e7ff;
+          --accent-strong: #4338ca;
+
+          --accent-warm: #f97316;   /* orange */
+          --danger: #dc2626;
+
+          --radius-card: 16px;
+          --radius-pill: 999px;
+
+          --shadow-soft: 0 14px 28px rgba(15,23,42,0.12);
+          --shadow-medium: 0 18px 40px rgba(15,23,42,0.16);
+
+          --transition-fast: 0.16s ease;
+          --transition-med: 0.22s ease;
+        }
+
+        body[data-theme="dark"] {
+          --bg: #020617;
+          --bg-card: #020617;
+          --bg-sidebar: #020617;
+          --bg-sidebar-soft: #020617;
+
+          --border-soft: #1f2937;
+          --border-strong: #4b5563;
+
+          --text-main: #e5e7eb;
+          --text-soft: #cbd5f5;
+          --text-muted: #9ca3af;
+
+          --accent: #6366f1;
+          --accent-soft: rgba(79,70,229,0.15);
+          --accent-strong: #a5b4fc;
+
+          --accent-warm: #fb923c;
+          --danger: #f97373;
+
+          --shadow-soft: 0 20px 40px rgba(0,0,0,0.75);
+          --shadow-medium: 0 28px 60px rgba(0,0,0,0.85);
+        }
+
+        * { box-sizing:border-box; margin:0; padding:0; }
+
+        html, body { height:100%; }
+
+        body {
+          min-height:100vh;
+          font-family:var(--font-main);
+          background:
+            radial-gradient(circle at top left, rgba(79,70,229,0.15), transparent 55%),
+            radial-gradient(circle at bottom right, rgba(249,115,22,0.18), transparent 55%),
+            var(--bg);
+          color:var(--text-main);
+          display:flex;
+        }
+
+        .small { font-size:11px; color:var(--text-muted); }
+
+        /* LAYOUT */
+        .sidebar {
+          width:220px;
+          background:linear-gradient(180deg,var(--bg-sidebar-soft),var(--bg-sidebar));
+          color:#e5e7eb;
+          padding:16px 14px 16px;
+          display:flex;
+          flex-direction:column;
+          gap:16px;
+          box-shadow:4px 0 22px rgba(15,23,42,0.75);
+          z-index:10;
+        }
+
+        .sidebar-header {
+          display:flex;
+          align-items:center;
+          gap:10px;
+          margin-bottom:6px;
+        }
+
+        .logo {
+          width:30px;
+          height:30px;
+          border-radius:10px;
+          background:conic-gradient(from 210deg,#4f46e5,#22c55e,#f97316,#4f46e5);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-weight:700;
+          font-size:14px;
+          color:#f9fafb;
+          box-shadow:0 0 18px rgba(129,140,248,0.9);
+        }
+
+        .brand-text {
+          display:flex;
+          flex-direction:column;
+          gap:2px;
+        }
+
+        .brand-title {
+          font-size:14px;
+          font-weight:600;
+          letter-spacing:0.08em;
+          text-transform:uppercase;
+        }
+
+        .brand-sub {
+          font-size:11px;
+          color:#9ca3af;
+        }
+
+        .nav {
+          margin-top:10px;
+          display:flex;
+          flex-direction:column;
+          gap:4px;
+        }
+
+        .nav-group-label {
+          font-size:11px;
+          color:#6b7280;
+          text-transform:uppercase;
+          letter-spacing:0.14em;
+          margin-bottom:4px;
+        }
+
+        .nav-item {
+          display:flex;
+          align-items:center;
+          gap:8px;
+          padding:7px 8px;
+          border-radius:10px;
+          color:#e5e7eb;
+          font-size:13px;
+          cursor:pointer;
+          transition:background var(--transition-fast), transform var(--transition-fast), color var(--transition-fast);
+        }
+
+        .nav-item-icon {
+          width:22px;
+          height:22px;
+          border-radius:999px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:14px;
+          background:rgba(15,23,42,0.6);
+        }
+
+        .nav-item span {
+          flex:1;
+        }
+
+        .nav-item.badge {
+          justify-content:space-between;
+        }
+
+        .nav-badge {
+          font-size:10px;
+          padding:1px 6px;
+          border-radius:999px;
+          border:1px solid rgba(148,163,184,0.6);
+          color:#9ca3af;
+        }
+
+        .nav-item:hover {
+          background:rgba(148,163,184,0.16);
+          transform:translateX(2px);
+        }
+
+        .nav-item.active {
+          background:rgba(79,70,229,0.18);
+          color:#e0e7ff;
+        }
+
+        .nav-item.active .nav-item-icon {
+          background:#4f46e5;
+        }
+
+        .sidebar-footer {
+          margin-top:auto;
+          border-top:1px solid rgba(31,41,55,0.8);
+          padding-top:8px;
+          font-size:11px;
+          color:#6b7280;
+        }
+
+        /* MAIN */
+        .main {
+          flex:1;
+          padding:16px 18px 18px;
+          display:flex;
+          flex-direction:column;
+          gap:12px;
+        }
+
+        /* TOP BAR IN MAIN */
+        .topbar {
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:10px;
+        }
+
+        .top-left {
+          display:flex;
+          flex-direction:column;
+          gap:4px;
+        }
+
+        .page-title {
+          font-size:20px;
+          font-weight:600;
+          display:flex;
+          align-items:center;
+          gap:8px;
+        }
+
+        .page-tag {
+          font-size:10px;
+          padding:2px 8px;
+          border-radius:var(--radius-pill);
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.85);
+          color:var(--text-muted);
+          text-transform:uppercase;
+          letter-spacing:0.12em;
+        }
+
+        body[data-theme="dark"] .page-tag {
+          background:rgba(15,23,42,0.9);
+          color:var(--text-soft);
+          border-color:var(--border-strong);
+        }
+
+        .welcome {
+          font-size:13px;
+          color:var(--text-soft);
+        }
+
+        .top-right {
+          display:flex;
+          align-items:center;
+          gap:8px;
+        }
+
+        .search-shell {
+          position:relative;
+          width:220px;
+        }
+
+        .search-input {
+          width:100%;
+          padding:6px 26px;
+          border-radius:999px;
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.95);
+          font-size:12px;
+          outline:none;
+          color:var(--text-main);
+          transition:border var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+        }
+
+        .search-input::placeholder { color:var(--text-muted); }
+
+        .search-input:focus {
+          border-color:var(--accent);
+          background:#ffffff;
+          box-shadow:0 0 0 1px var(--accent-soft);
+          transform:translateY(-1px);
+        }
+
+        body[data-theme="dark"] .search-input {
+          background:rgba(15,23,42,0.95);
+          border-color:var(--border-soft);
+          color:var(--text-soft);
+        }
+
+        .search-icon {
+          position:absolute;
+          left:8px;
+          top:50%;
+          transform:translateY(-50%);
+          font-size:12px;
+          color:var(--text-muted);
+        }
+
+        .search-kbd {
+          position:absolute;
+          right:6px;
+          top:50%;
+          transform:translateY(-50%);
+          font-size:9px;
+          padding:1px 5px;
+          border-radius:999px;
+          border:1px solid var(--border-soft);
+          background:#ffffff;
+          color:var(--text-muted);
+        }
+
+        body[data-theme="dark"] .search-kbd {
+          background:#020617;
+          color:var(--text-soft);
+        }
+
+        .theme-toggle {
+          width:50px;
+          height:24px;
+          border-radius:999px;
+          border:1px solid var(--border-soft);
+          background:#e5e7eb;
+          display:flex;
+          align-items:center;
+          padding:2px;
+          cursor:pointer;
+          position:relative;
+          transition:background var(--transition-fast), border var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .theme-knob {
+          width:20px;
+          height:20px;
+          border-radius:999px;
+          background:#ffffff;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:11px;
+          box-shadow:0 2px 5px rgba(15,23,42,0.3);
+          transform:translateX(0);
+          transition:transform var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+          color:#f97316;
+        }
+
+        body[data-theme="dark"] .theme-toggle {
+          background:#020617;
+          border-color:var(--border-strong);
+          box-shadow:0 10px 22px rgba(0,0,0,0.7);
+        }
+
+        body[data-theme="dark"] .theme-knob {
+          transform:translateX(24px);
+          background:#0f172a;
+          color:#facc15;
+        }
+
+        .user-pill {
+          display:flex;
+          align-items:center;
+          gap:6px;
+          padding:4px 8px;
+          border-radius:var(--radius-pill);
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.9);
+          font-size:11px;
+          color:var(--text-soft);
+        }
+
+        body[data-theme="dark"] .user-pill {
+          background:rgba(15,23,42,0.9);
+          color:var(--text-soft);
+        }
+
+        .user-avatar {
+          width:22px;
+          height:22px;
+          border-radius:999px;
+          background:linear-gradient(135deg,#4f46e5,#f97316);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:12px;
+          font-weight:600;
+          color:#f9fafb;
+        }
+
+        .btn-logout {
+          padding:5px 9px;
+          border-radius:var(--radius-pill);
+          border:1px solid rgba(248,113,113,0.8);
+          background:#fef2f2;
+          font-size:11px;
+          color:#b91c1c;
+          display:flex;
+          align-items:center;
+          gap:4px;
+          cursor:pointer;
+          transition:background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+        }
+
+        .btn-logout:hover {
+          background:#fee2e2;
+          transform:translateY(-1px);
+          box-shadow:0 6px 16px rgba(239,68,68,0.32);
+        }
+
+        .btn-logout:active {
+          opacity:0.9;
+          transform:translateY(0);
+          box-shadow:none;
+        }
+
+        body[data-theme="dark"] .btn-logout {
+          background:rgba(127,29,29,0.1);
+          color:#fecaca;
+        }
+
+        /* METRICS */
+        .metrics {
+          margin-top:6px;
+          display:grid;
+          grid-template-columns:repeat(4,minmax(0,1fr));
+          gap:10px;
+        }
+
+        @media (max-width:1040px) {
+          .metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        }
+
+        @media (max-width:720px) {
+          .metrics { grid-template-columns:1fr; }
+        }
+
+        .metric-card {
+          border-radius:var(--radius-card);
+          background:var(--bg-card);
+          border:1px solid var(--border-soft);
+          padding:10px 11px;
+          box-shadow:var(--shadow-soft);
+          cursor:pointer;
+          transition:transform var(--transition-fast), box-shadow var(--transition-fast), border var(--transition-fast), background var(--transition-fast);
+          display:flex;
+          flex-direction:column;
+          gap:4px;
+        }
+
+        .metric-card:hover {
+          transform:translateY(-2px);
+          box-shadow:var(--shadow-medium);
+          border-color:var(--border-strong);
+          background:#ffffff;
+        }
+
+        body[data-theme="dark"] .metric-card:hover {
+          background:#020617;
+        }
+
+        .metric-header {
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          font-size:11px;
+          text-transform:uppercase;
+          letter-spacing:0.08em;
+          color:var(--text-muted);
+        }
+
+        .metric-main {
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:8px;
+        }
+
+        .metric-number {
+          font-size:24px;
+          font-weight:600;
+        }
+
+        .metric-label {
+          font-size:12px;
+          color:var(--text-soft);
+        }
+
+        .metric-pill {
+          font-size:11px;
+          padding:3px 7px;
+          border-radius:var(--radius-pill);
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.9);
+          color:var(--text-soft);
+          white-space:nowrap;
+        }
+
+        body[data-theme="dark"] .metric-pill {
+          background:rgba(15,23,42,0.9);
+          color:var(--text-soft);
+        }
+
+        .metric-pill.danger {
+          border-color:#fecaca;
+          background:#fef2f2;
+          color:#b91c1c;
+        }
+
+        body[data-theme="dark"] .metric-pill.danger {
+          background:rgba(127,29,29,0.3);
+          color:#fecaca;
+        }
+
+        .metric-detail {
+          font-size:11px;
+          color:var(--text-muted);
+          max-height:0;
+          overflow:hidden;
+          opacity:0;
+          transition:max-height var(--transition-med), opacity var(--transition-med);
+        }
+
+        .metric-card.expanded .metric-detail {
+          max-height:42px;
+          opacity:1;
+        }
+
+        /* FOOTER SMALL ROW */
+        .footer-row {
+          margin-top:8px;
+          padding-top:6px;
+          border-top:1px solid var(--border-soft);
+          display:flex;
+          justify-content:space-between;
+          gap:8px;
+          flex-wrap:wrap;
+          font-size:11px;
+          color:var(--text-muted);
+        }
+
+        .footer-chips {
+          display:flex;
+          flex-wrap:wrap;
+          gap:6px;
+        }
+
+        .footer-chip {
+          padding:3px 7px;
+          border-radius:var(--radius-pill);
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.9);
+          color:var(--text-soft);
+        }
+
+        body[data-theme="dark"] .footer-chip {
+          background:rgba(15,23,42,0.9);
+          color:var(--text-soft);
+        }
+
+        @media (max-width:720px) {
+          .topbar {
+            flex-direction:column;
+            align-items:flex-start;
+          }
+          .top-right {
+            align-self:stretch;
+            justify-content:flex-end;
+          }
+          .top-right .search-shell {
+            flex:1;
+            width:auto;
+          }
+        }
+    </style>
+</head>
+<body data-theme="light">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div>
+        <div class="sidebar-header">
+            <div class="logo">IN</div>
+            <div class="brand-text">
+                <div class="brand-title">Inventory</div>
+                <div class="brand-sub">Admin Panel</div>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <div class="nav-group-label">Main</div>
+
+            <div class="nav-item active">
+                <div class="nav-item-icon">📊</div>
+                <span>Dashboard</span>
+            </div>
+
+            <div class="nav-item" onclick="window.location.href='./products.html'">
+                <div class="nav-item-icon">📦</div>
+                <span>Products</span>
+            </div>
+
+            <div class="nav-item" onclick="window.location.href='./staff.html'">
+                <div class="nav-item-icon">👥</div>
+                <span>Staff</span>
+            </div>
+
+            <div class="nav-item" onclick="window.location.href='./reports.html'">
+                <div class="nav-item-icon">📂</div>
+                <span>Reports</span>
+            </div>
+        </nav>
+    </div>
+
+    <div class="sidebar-footer">
+        <div>Inventory Admin · v1.0</div>
+        <div class="small">Only admins can access this panel.</div>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+    <!-- TOP BAR -->
+    <header class="topbar">
+        <div class="top-left">
+            <div class="page-title">
+                Admin Dashboard
+                <span class="page-tag" id="pageTag">Today</span>
+            </div>
+            <div class="welcome">
+                Welcome back, <span id="welcomeName">Admin</span>.
+            </div>
+        </div>
+
+        <div class="top-right">
+            <div class="search-shell">
+                <span class="search-icon">🔍</span>
+                <input id="globalSearch" class="search-input" type="search"
+                       placeholder="Search products, orders or staff…" />
+                <span class="search-kbd">Ctrl+K</span>
+            </div>
+
+            <div id="themeToggle" class="theme-toggle" title="Dark / Light">
+                <div class="theme-knob">☀</div>
+            </div>
+
+            <div class="user-pill">
+                <div id="userAvatar" class="user-avatar">A</div>
+                <span id="userNameLabel">Admin</span>
+            </div>
+
+            <button id="logoutBtn" class="btn-logout" type="button">
+                <span>⏏</span>
+                <span>Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- METRICS -->
+    <section class="metrics">
+        <div class="metric-card" data-go="./products.html">
+            <div class="metric-header">
+                <span>Total Products</span>
+                <span class="small">Inventory</span>
+            </div>
+            <div class="metric-main">
+                <div>
+                    <div id="totalProducts" class="metric-number">0</div>
+                    <div class="metric-label">Active items in inventory</div>
+                </div>
+                <div class="metric-pill">All SKUs</div>
+            </div>
+            <div class="metric-detail">
+                Every active product currently tracked in your inventory system.
+            </div>
+        </div>
+
+        <div class="metric-card" data-go="./products.html">
+            <div class="metric-header">
+                <span>Low Stock</span>
+                <span class="small">Alerts</span>
+            </div>
+            <div class="metric-main">
+                <div>
+                    <div id="lowStock" class="metric-number">0</div>
+                    <div class="metric-label">Below minimum threshold</div>
+                </div>
+                <div class="metric-pill danger">Needs attention</div>
+            </div>
+            <div class="metric-detail">
+                Items at or below your configured minimum stock level.
+            </div>
+        </div>
+
+        <div class="metric-card" data-go="./staff.html">
+            <div class="metric-header">
+                <span>Total Staff</span>
+                <span class="small">Users</span>
+            </div>
+            <div class="metric-main">
+                <div>
+                    <div id="totalStaff" class="metric-number">0</div>
+                    <div class="metric-label">Users with panel access</div>
+                </div>
+                <div class="metric-pill">Admin & Staff</div>
+            </div>
+            <div class="metric-detail">
+                All user accounts that can log into this admin panel.
+            </div>
+        </div>
+
+        <!-- Orders Today: no data-go, no navigation -->
+        <div class="metric-card">
+            <div class="metric-header">
+                <span>Orders Today</span>
+                <span class="small">24h</span>
+            </div>
+            <div class="metric-main">
+                <div>
+                    <div id="ordersToday" class="metric-number">0</div>
+                    <div class="metric-label">Created in last 24 hours</div>
+                </div>
+                <div class="metric-pill">Live activity</div>
+            </div>
+            <div class="metric-detail">
+                Orders created in the last 24 hours across all staff.
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <section class="footer-row">
+        <div class="small" id="footerSync">Inventory Admin · snapshot</div>
+        <div class="footer-chips">
+            <div class="footer-chip">Products: <span id="footerProducts">0</span></div>
+            <div class="footer-chip">Low stock: <span id="footerLow">0</span></div>
+            <div class="footer-chip">Staff: <span id="footerStaff">0</span></div>
+            <div class="footer-chip">Orders today: <span id="footerOrders">0</span></div>
+        </div>
+    </section>
+</main>
+<script>
+    const API_BASE = 'http://localhost:8080';
+
+    // ---------- TOKEN + AUTH HELPERS ----------
+    function getToken() {
+      try {
+        return localStorage.getItem('auth_token');
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function buildAuthHeaders(extra) {
+      const headers = Object.assign({}, extra || {});
+      const token = getToken();
+      if (token) {
+        headers['Authorization'] = 'Bearer ' + token;
+      }
+      return headers;
+    }
+
+    // 🔹 NEW: read "orders today" from localStorage (same format as staff)
+    function getLocalOrdersToday() {
+      const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      const key = 'orders_today_' + todayStr;
+      const raw = localStorage.getItem(key);
+      if (raw == null) return null;
+      const n = Number(raw);
+      if (Number.isNaN(n)) return null;
+      return n;
+    }
+
+    // THEME SETUP
+    const bodyEl = document.body;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeKnob = themeToggle.querySelector('.theme-knob');
+
+    function applyTheme(theme) {
+      bodyEl.setAttribute('data-theme', theme);
+      themeKnob.textContent = theme === 'light' ? '☀' : '🌙';
+      try { localStorage.setItem('ui_theme', theme); } catch(e){}
+    }
+
+    (function initTheme() {
+      const stored = localStorage.getItem('ui_theme');
+      applyTheme(stored === 'dark' ? 'dark' : 'light');
+    })();
+
+    // ---------- AUTH CHECK (ADMIN ONLY + JWT REQUIRED) ----------
+    (function enforceAdminAccess(){
+      const token = getToken();
+      if (!token) {
+        window.location.href = API_BASE + '/login.html';
+        return;
+      }
+
+      let rights = null;
+      let email  = null;
+      try {
+        rights = localStorage.getItem('rights');
+        email  = localStorage.getItem('user_email') || localStorage.getItem('email');
+      } catch(e){}
+
+      const name = email || 'admin';
+      const baseName = name.split('@')[0];
+
+      const welcome = document.getElementById('welcomeName');
+      const userLabel = document.getElementById('userNameLabel');
+      const avatar = document.getElementById('userAvatar');
+
+      if (welcome) welcome.textContent = baseName;
+      if (userLabel) userLabel.textContent = baseName;
+      if (avatar) avatar.textContent = baseName.charAt(0).toUpperCase();
+
+      if (!rights || rights.toLowerCase() !== 'admin'){
+        window.location.href = API_BASE + '/login.html';
+      }
+    })();
+
+    // LOGOUT
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      try {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('rights');
+        localStorage.removeItem('user_email');
+        localStorage.removeItem('email');
+      } catch(e){}
+      window.location.href = API_BASE + '/login.html';
+    });
+
+    // METRIC CARD EXPAND + NAV
+    document.querySelectorAll('.metric-card').forEach(card => {
+      const target = card.getAttribute('data-go');
+
+      card.addEventListener('click', () => {
+        const already = card.classList.contains('expanded');
+        document.querySelectorAll('.metric-card').forEach(c => c.classList.remove('expanded'));
+        if (!already) card.classList.add('expanded');
+
+        if (target){
+          setTimeout(() => {
+            window.location.href = target;
+          }, 140);
+        }
+      });
+    });
+
+    // NUMBER ANIMATION
+    function animateNumber(el, target, duration = 650) {
+      if (!el) return;
+      const start = 0;
+      const cleanTarget = Number(target) || 0;
+      const startTime = performance.now();
+
+      function frame(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const value = Math.floor(start + (cleanTarget - start) * progress);
+        el.textContent = value;
+        if (progress < 1) {
+          requestAnimationFrame(frame);
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    async function fetchList(urlPath) {
+      try {
+        const res = await fetch(API_BASE + urlPath, {
+          method: 'GET',
+          headers: buildAuthHeaders({ 'Accept': 'application/json' })
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          window.location.href = API_BASE + '/login.html';
+          return [];
+        }
+
+        if (!res.ok) {
+          console.warn('Failed to fetch', urlPath, res.status);
+          return [];
+        }
+
+        const body = await res.json().catch(() => null);
+        if (Array.isArray(body)) return body;
+        if (body && Array.isArray(body.data)) return body.data;
+        return [];
+      } catch (e) {
+        console.error('Error fetching', urlPath, e);
+        return [];
+      }
+    }
+
+    (function loadDashboardStats() {
+      Promise.all([
+        fetchList('/api/staff/getAllStaff'),
+        fetchList('/api/stock/getAllItems'),
+        fetchList('/api/customer-orders/getAllCustomerOrders')
+      ]).then(([staffList, itemList, orderList]) => {
+        const staff  = Array.isArray(staffList) ? staffList : [];
+        const items  = Array.isArray(itemList) ? itemList : [];
+        const orders = Array.isArray(orderList) ? orderList : [];
+
+        const totalStaff    = staff.length;
+        const totalProducts = items.length;
+
+        const lowStockCount = items.filter(it => {
+          const unit = Number(it.unit ?? 0);
+          return !Number.isNaN(unit) && unit <= 2;
+        }).length;
+
+        // -------- ORDERS TODAY COUNT (backend first, then local override) --------
+        let ordersToday = 0;
+
+        if (orders.length === 0) {
+          ordersToday = 0;
+        } else {
+          const todayStr = new Date().toISOString().split('T')[0];
+          let anyDateField = false;
+
+          orders.forEach(o => {
+            const rawDate = o.orderDate || o.createdAt || o.date || o.createdOn;
+            if (rawDate) {
+              anyDateField = true;
+              const onlyDate = String(rawDate).split('T')[0];
+              if (onlyDate === todayStr) {
+                ordersToday++;
+              }
+            }
+          });
+
+          if (!anyDateField) {
+            ordersToday = orders.length;
+          }
+        }
+
+        // 🔹 NEW: if we have a local JS count (from staff panel), prefer that
+        const localCount = getLocalOrdersToday();
+        if (localCount !== null) {
+          ordersToday = localCount;
+        }
+
+        // -------- UPDATE UI --------
+        animateNumber(document.getElementById('totalProducts'), totalProducts);
+        animateNumber(document.getElementById('lowStock'),      lowStockCount);
+        animateNumber(document.getElementById('totalStaff'),    totalStaff);
+        animateNumber(document.getElementById('ordersToday'),   ordersToday);
+
+        document.getElementById('footerProducts').textContent = totalProducts;
+        document.getElementById('footerLow').textContent      = lowStockCount;
+        document.getElementById('footerStaff').textContent    = totalStaff;
+        document.getElementById('footerOrders').textContent   = ordersToday;
+
+        const now = new Date();
+        const syncText = 'Last sync: ' + now.toLocaleString();
+        const footerSync = document.getElementById('footerSync');
+        if (footerSync) footerSync.textContent = syncText;
+
+        const pageTag = document.getElementById('pageTag');
+        if (pageTag) pageTag.textContent = now.toLocaleDateString();
+      }).catch(err => {
+        console.error('Failed to load dashboard stats:', err);
+      });
+    })();
+
+    // SIMPLE SEARCH LOG + CTRL+K
+    const globalSearch = document.getElementById('globalSearch');
+
+    globalSearch.addEventListener('input', (e) => {
+      console.log('Search query:', e.target.value);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        globalSearch.focus();
+        globalSearch.select();
+      }
+    });
+</script>
+</body>
+</html>

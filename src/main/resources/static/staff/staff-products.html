@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Stock details · Inventory Staff Panel</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <style>
+        /* SAME THEME + SIDEBAR + TOPBAR AS DASHBOARD / CUSTOMER ORDER */
+
+        :root {
+          --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          --bg: #f3f4f6;
+          --bg-card: #ffffff;
+          --bg-sidebar: #0f172a;
+          --bg-sidebar-soft: #020617;
+          --border-soft: #e5e7eb;
+          --border-strong: #cbd5f5;
+          --text-main: #0f172a;
+          --text-soft: #4b5563;
+          --text-muted: #9ca3af;
+          --accent: #4f46e5;
+          --accent-soft: #e0e7ff;
+          --accent-strong: #4338ca;
+          --accent-warm: #f97316;
+          --danger: #dc2626;
+          --radius-card: 16px;
+          --radius-pill: 999px;
+          --shadow-soft: 0 14px 28px rgba(15,23,42,0.12);
+          --shadow-medium: 0 18px 40px rgba(15,23,42,0.16);
+          --transition-fast: 0.16s ease;
+          --transition-med: 0.22s ease;
+        }
+
+        body[data-theme="dark"] {
+          --bg: #020617;
+          --bg-card: #020617;
+          --bg-sidebar: #020617;
+          --bg-sidebar-soft: #020617;
+          --border-soft: #1f2937;
+          --border-strong: #4b5563;
+          --text-main: #e5e7eb;
+          --text-soft: #cbd5f5;
+          --text-muted: #9ca3af;
+          --accent: #6366f1;
+          --accent-soft: rgba(79,70,229,0.15);
+          --accent-strong: #a5b4fc;
+          --accent-warm: #fb923c;
+          --danger: #f97373;
+          --shadow-soft: 0 20px 40px rgba(0,0,0,0.75);
+          --shadow-medium: 0 28px 60px rgba(0,0,0,0.85);
+        }
+
+        * { box-sizing:border-box; }
+
+        html, body { height:100%; margin:0; }
+
+        body {
+          min-height:100vh;
+          font-family:var(--font-main);
+          background:
+            radial-gradient(circle at top left, rgba(79,70,229,0.15), transparent 55%),
+            radial-gradient(circle at bottom right, rgba(249,115,22,0.18), transparent 55%),
+            var(--bg);
+          color:var(--text-main);
+          display:flex;
+        }
+
+        .small { font-size:11px; color:var(--text-muted); }
+
+        .sidebar {
+          width:220px;
+          background:linear-gradient(180deg,var(--bg-sidebar-soft),var(--bg-sidebar));
+          color:#e5e7eb;
+          padding:16px 14px 16px;
+          display:flex;
+          flex-direction:column;
+          gap:16px;
+          box-shadow:4px 0 22px rgba(15,23,42,0.75);
+          z-index:10;
+        }
+
+        .sidebar-header {
+          display:flex;
+          align-items:center;
+          gap:10px;
+          margin-bottom:6px;
+        }
+
+        .logo {
+          width:30px;
+          height:30px;
+          border-radius:10px;
+          background:conic-gradient(from 210deg,#4f46e5,#22c55e,#f97316,#4f46e5);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-weight:700;
+          font-size:14px;
+          color:#f9fafb;
+        }
+
+        .brand-text { display:flex; flex-direction:column; gap:2px; }
+
+        .brand-title {
+          font-size:14px;
+          font-weight:600;
+          letter-spacing:0.08em;
+          text-transform:uppercase;
+        }
+
+        .brand-sub { font-size:11px; color:#9ca3af; }
+
+        .nav { margin-top:10px; display:flex; flex-direction:column; gap:4px; }
+
+        .nav-group-label {
+          font-size:11px;
+          color:#6b7280;
+          text-transform:uppercase;
+          letter-spacing:0.14em;
+          margin-bottom:4px;
+        }
+
+        .nav-item {
+          display:flex;
+          align-items:center;
+          gap:8px;
+          padding:7px 8px;
+          border-radius:10px;
+          color:#e5e7eb;
+          font-size:13px;
+          cursor:pointer;
+          transition:background var(--transition-fast), transform var(--transition-fast), color var(--transition-fast);
+        }
+
+        .nav-item-icon {
+          width:22px;
+          height:22px;
+          border-radius:999px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:14px;
+          background:rgba(15,23,42,0.6);
+        }
+
+        .nav-item span { flex:1; }
+
+        .nav-item:hover {
+          background:rgba(148,163,184,0.16);
+          transform:translateX(2px);
+        }
+
+        .nav-item.active {
+          background:rgba(79,70,229,0.25);
+          color:#e0e7ff;
+        }
+
+        .nav-item.active .nav-item-icon {
+          background:#4f46e5;
+        }
+
+        .sidebar-footer {
+          margin-top:auto;
+          border-top:1px solid rgba(31,41,55,0.8);
+          padding-top:8px;
+          font-size:11px;
+          color:#6b7280;
+        }
+
+        .main {
+          flex:1;
+          padding:16px 18px 18px;
+          display:flex;
+          flex-direction:column;
+          gap:12px;
+          min-width:0;
+        }
+
+        .topbar {
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:10px;
+          flex-wrap:wrap;
+        }
+
+        .top-left { display:flex; flex-direction:column; gap:4px; }
+
+        .page-title {
+          font-size:20px;
+          font-weight:600;
+          display:flex;
+          align-items:center;
+          gap:8px;
+        }
+
+        .page-tag {
+          font-size:10px;
+          padding:2px 8px;
+          border-radius:var(--radius-pill);
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.85);
+          color:var(--text-muted);
+          text-transform:uppercase;
+          letter-spacing:0.12em;
+        }
+
+        body[data-theme="dark"] .page-tag {
+          background:rgba(15,23,42,0.9);
+          color:var(--text-soft);
+          border-color:var(--border-strong);
+        }
+
+        .welcome {
+          font-size:13px;
+          color:var(--text-soft);
+        }
+
+        .top-right {
+          display:flex;
+          align-items:center;
+          gap:8px;
+          flex-wrap:wrap;
+        }
+
+        .search-shell {
+          position:relative;
+          width:260px;
+        }
+
+        .search-input {
+          width:100%;
+          padding:6px 26px;
+          border-radius:999px;
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.95);
+          font-size:12px;
+          outline:none;
+          color:var(--text-main);
+        }
+
+        .search-input::placeholder { color:var(--text-muted); }
+
+        body[data-theme="dark"] .search-input {
+          background:rgba(15,23,42,0.95);
+          border-color:var(--border-soft);
+          color:var(--text-soft);
+        }
+
+        .search-icon {
+          position:absolute;
+          left:8px;
+          top:50%;
+          transform:translateY(-50%);
+          font-size:12px;
+          color:var(--text-muted);
+        }
+
+        .theme-toggle {
+          width:50px;
+          height:24px;
+          border-radius:999px;
+          border:1px solid var(--border-soft);
+          background:#e5e7eb;
+          display:flex;
+          align-items:center;
+          padding:2px;
+          cursor:pointer;
+          position:relative;
+        }
+
+        .theme-knob {
+          width:20px;
+          height:20px;
+          border-radius:999px;
+          background:#ffffff;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:11px;
+          box-shadow:0 2px 5px rgba(15,23,42,0.3);
+          transform:translateX(0);
+          transition:transform .16s ease, background .16s ease, color .16s ease;
+          color:#f97316;
+        }
+
+        body[data-theme="dark"] .theme-toggle {
+          background:#020617;
+          border-color:var(--border-strong);
+          box-shadow:0 10px 22px rgba(0,0,0,0.7);
+        }
+
+        body[data-theme="dark"] .theme-knob {
+          transform:translateX(24px);
+          background:#0f172a;
+          color:#facc15;
+        }
+
+        .user-pill {
+          display:flex;
+          align-items:center;
+          gap:6px;
+          padding:4px 8px;
+          border-radius:var(--radius-pill);
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.9);
+          font-size:11px;
+          color:var(--text-soft);
+        }
+
+        body[data-theme="dark"] .user-pill {
+          background:rgba(15,23,42,0.9);
+        }
+
+        .user-avatar {
+          width:22px;
+          height:22px;
+          border-radius:999px;
+          background:linear-gradient(135deg,#4f46e5,#f97316);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:12px;
+          font-weight:600;
+          color:#f9fafb;
+        }
+
+        .btn-logout {
+          padding:5px 9px;
+          border-radius:var(--radius-pill);
+          border:1px solid rgba(248,113,113,0.8);
+          background:#fef2f2;
+          font-size:11px;
+          color:#b91c1c;
+          display:flex;
+          align-items:center;
+          gap:4px;
+          cursor:pointer;
+        }
+
+        body[data-theme="dark"] .btn-logout {
+          background:rgba(127,29,29,0.1);
+          color:#fecaca;
+        }
+
+        .workspace {
+          border-radius:var(--radius-card);
+          background:var(--bg-card);
+          border:1px solid var(--border-soft);
+          box-shadow:var(--shadow-soft);
+          padding:16px 18px 18px;
+          min-height:0;
+          display:flex;
+          flex-direction:column;
+          gap:12px;
+        }
+
+        .pill-soft {
+          border-radius:var(--radius-pill);
+          padding:4px 10px;
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.9);
+          font-size:11px;
+          color:var(--text-soft);
+        }
+
+        body[data-theme="dark"] .pill-soft {
+          background:rgba(15,23,42,0.9);
+        }
+
+        .card-header-row {
+          display:flex;
+          justify-content:space-between;
+          align-items:baseline;
+          margin-bottom:6px;
+        }
+
+        .card-title {
+          font-size:14px;
+          letter-spacing:0.16em;
+          text-transform:uppercase;
+          color:var(--text-muted);
+          font-weight:600;
+        }
+
+        .pill-label {
+          font-size:11px;
+          border-radius:var(--radius-pill);
+          padding:4px 10px;
+          background:rgba(91,95,255,0.08);
+          border:1px solid rgba(91,95,255,0.28);
+          color:var(--accent-strong);
+        }
+
+        .stock-table {
+          width:100%;
+          border-collapse:collapse;
+          font-size:12px;
+          margin-top:4px;
+        }
+
+        .stock-table th,
+        .stock-table td {
+          text-align:left;
+          padding:8px 6px;
+          white-space:nowrap;
+          text-overflow:ellipsis;
+          overflow:hidden;
+        }
+
+        .stock-table th {
+          font-size:11px;
+          text-transform:uppercase;
+          letter-spacing:0.16em;
+          color:var(--text-muted);
+          border-bottom:1px solid rgba(193,198,236,0.7);
+        }
+
+        .stock-table tbody tr:nth-child(even) {
+          background:rgba(244,246,255,0.85);
+        }
+
+        body[data-theme="dark"] .stock-table tbody tr:nth-child(even) {
+          background:rgba(24,28,60,0.9);
+        }
+
+        @media (max-width:720px) {
+          .topbar { flex-direction:column; align-items:flex-start; }
+          .top-right .search-shell { width:100%; }
+        }
+    </style>
+</head>
+<body data-theme="light">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div>
+        <div class="sidebar-header">
+            <div class="logo">IN</div>
+            <div class="brand-text">
+                <div class="brand-title">Inventory</div>
+                <div class="brand-sub">Staff Panel</div>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <div class="nav-group-label">Main</div>
+
+            <div class="nav-item" onclick="window.location.href='./dashboard.html'">
+                <div class="nav-item-icon">📊</div>
+                <span>Dashboard</span>
+            </div>
+
+            <div class="nav-item active" onclick="window.location.href='./staff-products.html'">
+                <div class="nav-item-icon">📦</div>
+                <span>Stock details</span>
+            </div>
+
+            <div class="nav-item" onclick="window.location.href='./staff-order.html'">
+                <div class="nav-item-icon">🛒</div>
+                <span>Customer orders</span>
+            </div>
+        </nav>
+    </div>
+
+    <div class="sidebar-footer">
+        <div>Inventory Staff · v1.0</div>
+        <div class="small">Staff can only view products here.</div>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+    <header class="topbar">
+        <div class="top-left">
+            <div class="page-title">
+                Stock details
+                <span class="page-tag">Staff</span>
+            </div>
+            <div class="welcome">
+                View products to help customers place orders.
+            </div>
+        </div>
+
+        <div class="top-right">
+            <div class="search-shell">
+                <span class="search-icon">🔍</span>
+                <input id="globalSearch" class="search-input" placeholder="Search products (name / code)…" />
+            </div>
+
+            <div id="themeToggle" class="theme-toggle" title="Dark / Light">
+                <div class="theme-knob">☀</div>
+            </div>
+
+            <div class="user-pill">
+                <div id="userAvatar" class="user-avatar">S</div>
+                <span id="userNameLabel">staff</span>
+            </div>
+
+            <button id="logoutBtn" class="btn-logout" type="button">
+                <span>⏏</span>
+                <span>Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <section class="workspace">
+<!--        <div class="d-flex justify-content-between align-items-center mb-2">-->
+<!--            <div class="small">Product list</div>-->
+<!--            <span class="pill-soft" id="infoChip">Loading…</span>-->
+<!--        </div>-->
+
+        <div class="card-header-row">
+            <div>
+                <div class="card-title">Product list</div>
+            </div>
+            <span class="pill-label">View only</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="stock-table">
+                <thead>
+                <tr>
+                    <th style="width:80px">ID</th>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Price / qty</th>
+                    <th>Unit</th>
+                    <th>Total price</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<script>
+    const STOCK_PRIMARY = '/api/stock/getAllItems';
+    const STOCK_FALLBACK = 'http://localhost:8080/api/stock/getAllItems';
+    const THEME_KEY = 'ui_theme';
+
+    // user label same as other pages
+    (function initUserInfo(){
+      let email = null;
+      try {
+        email = localStorage.getItem('user_email') || localStorage.getItem('email');
+      } catch(e){}
+
+      const name = email || 'staff';
+      const baseName = name.split('@')[0];
+
+      const userLabel = document.getElementById('userNameLabel');
+      const avatar    = document.getElementById('userAvatar');
+
+      if (userLabel) userLabel.textContent = baseName;
+      if (avatar)    avatar.textContent = baseName.charAt(0).toUpperCase();
+    })();
+
+    // THEME (same as dashboard / staff-order)
+    const bodyEl     = document.body;
+    const themeToggle= document.getElementById('themeToggle');
+    const themeKnob  = themeToggle.querySelector('.theme-knob');
+
+    function applyTheme(theme) {
+      bodyEl.setAttribute('data-theme', theme);
+      themeKnob.textContent = theme === 'light' ? '☀' : '🌙';
+      try { localStorage.setItem(THEME_KEY, theme); } catch(e){}
+    }
+
+    (function initTheme() {
+      const stored = localStorage.getItem(THEME_KEY);
+      applyTheme(stored === 'dark' ? 'dark' : 'light');
+    })();
+
+    themeToggle.addEventListener('click', () => {
+      const current = bodyEl.getAttribute('data-theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      applyTheme(next);
+    });
+
+    // SEARCH + LOGOUT
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      fetch('/api/auth/logout',{method:'POST'}).finally(() => {
+        window.location.href='http://localhost:8080/login.html';
+      });
+    });
+
+    function getSearchTerm(){
+      const params = new URLSearchParams(location.search);
+      return (params.get('q') || '').trim();
+    }
+
+    document.getElementById('globalSearch').addEventListener('keydown', e => {
+      if(e.key === 'Enter') applySearch();
+    });
+
+    function applySearch(){
+      const q = (document.getElementById('globalSearch').value || '').trim();
+      const url = new URL(location.href);
+      if(q) url.searchParams.set('q', q); else url.searchParams.delete('q');
+      location.href = url.toString();
+    }
+
+    // load products
+    async function loadProducts(){
+      let res;
+      try{
+        res = await fetch(STOCK_PRIMARY);
+        if(!res.ok) throw new Error();
+      }catch(e){
+        res = await fetch(STOCK_FALLBACK);
+      }
+
+      let list = await res.json().catch(()=>[]);
+      const q = getSearchTerm();
+      if(q){
+        const ql = q.toLowerCase();
+        list = list.filter(p =>
+          (p.productName || '').toLowerCase().includes(ql) ||
+          (p.model || '').toLowerCase().includes(ql)
+        );
+        document.getElementById('globalSearch').value = q;
+      }
+
+      renderProducts(list || []);
+    }
+
+    const infoChip = document.getElementById('infoChip');
+
+    function renderProducts(list){
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+      if(!list || list.length === 0){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="7" style="color:var(--text-muted)">No products found.</td>`;
+        tbody.appendChild(tr);
+        infoChip.textContent = '0 products';
+        return;
+      }
+
+      list.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.productId ?? ''}</td>
+          <td>${p.model ?? ''}</td>
+          <td>${p.productName ?? ''}</td>
+          <td>${p.pricePerQuantity ?? ''}</td>
+          <td>${p.unit ?? ''}</td>
+          <td>${p.totalPrice ?? ''}</td>
+          <td>${p.status ?? ''}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      infoChip.textContent = list.length + ' products';
+    }
+
+    loadProducts();
+</script>
+</body>
+</html>

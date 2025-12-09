@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Inventory — Sign up</title>
+
+    <!-- inline favicon to avoid /favicon.ico 500 while debugging -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><rect width='16' height='16' fill='%23061b2b'/></svg>">
+
+    <style>
+        :root{
+          --accent:#8b5cf6;
+          --muted:#9fb0c8;
+          --bg:#061226;
+          --card:rgba(255,255,255,0.03);
+          --success:#16a34a;
+          --danger:#ef4444;
+          font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+        }
+        *{box-sizing:border-box}
+        body{margin:0;min-height:100vh;background:linear-gradient(180deg,#021224,#061226);color:#e8f4ff;display:flex;align-items:center;justify-content:center;padding:24px}
+        .card{width:100%;max-width:880px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+        .left{padding:18px}
+        .logo{width:68px;height:68px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#22c55e);display:grid;place-items:center;font-size:20px;font-weight:700;color:white}
+        .title{font-size:20px;font-weight:700;margin-top:8px}
+        .desc{color:var(--muted);margin-top:8px;font-size:13px;max-width:320px}
+        .form{padding:6px}
+        .field{margin-bottom:12px;display:flex;flex-direction:column;gap:6px}
+        label{font-size:13px;color:#cfe2ff}
+        .input{padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+        .input:focus{outline:none;box-shadow:0 8px 24px rgba(139,92,246,0.06)}
+        .pass-strength{height:10px;border-radius:6px;background:rgba(255,255,255,0.04);overflow:hidden}
+        .pass-strength > i{display:block;height:100%;width:0%}
+        .hint{font-size:12px;color:var(--muted)}
+        .btn{padding:11px 16px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
+        .btn-primary{background:linear-gradient(90deg,var(--accent),#22c55e);color:white}
+        .footer{grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;margin-top:8px}
+        .feedback{font-size:13px;margin-top:6px}
+        .feedback.error{color:var(--danger)}
+        .feedback.ok{color:var(--success)}
+        @media (max-width:820px){.card{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<div class="card" role="main" aria-labelledby="signup-title">
+    <div class="left" aria-hidden="true">
+        <div class="logo">IM</div>
+        <div class="title" id="signup-title">Create your account</div>
+        <div class="desc">Strong passwords, friendly validation and helpful messages. Phone must be 10 digits.</div>
+    </div>
+
+    <form class="form" id="signupForm" novalidate>
+        <div class="field">
+            <label for="name">Full name</label>
+            <input id="name" name="name" class="input" type="text" autocomplete="name" placeholder="Jane Doe" required />
+            <div class="hint" id="nameHint"></div>
+        </div>
+
+        <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" class="input" type="email" autocomplete="email" placeholder="you@company.com" required />
+            <div class="hint" id="emailHint"></div>
+        </div>
+
+        <div class="field">
+            <label for="phone">Phone number</label>
+            <input id="phone" name="phone" class="input" type="tel" maxlength="12" autocomplete="tel" placeholder="10-digit phone" required />
+            <div class="hint" id="phoneHint"></div>
+        </div>
+
+        <div class="field" style="position:relative">
+            <label for="password">Password</label>
+            <input id="password" name="password" class="input" type="password" autocomplete="new-password" placeholder="At least 8 characters" required />
+            <div class="pass-strength" aria-hidden="true" style="margin-top:8px"><i id="strengthBar"></i></div>
+            <div class="hint" id="passwordHint"></div>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center;margin-top:6px">
+            <button type="submit" class="btn btn-primary">Create account</button>
+            <button type="button" id="gotoLogin" class="btn" style="background:transparent;color:var(--muted)">Back to login</button>
+        </div>
+
+        <div id="serverMsg" class="feedback" style="margin-top:8px"></div>
+        <div class="footer">By creating an account you agree to your admin's terms.</div>
+    </form>
+</div>
+
+<script>
+    /*
+      Signup CRT version
+      - Normalizes inputs (strip invisible chars, trim)
+      - Forces phone to digits-only before validating
+      - Shows password strength
+      - Uses API_BASE so it hits your Spring backend (change port if needed)
+      - Shows raw server response for debugging
+    */
+
+    const API_BASE = 'http://localhost:8080'; // <-- change if your backend uses another port
+
+    const nameEl = document.getElementById('name');
+    const emailEl = document.getElementById('email');
+    const phoneEl = document.getElementById('phone');
+    const passEl = document.getElementById('password');
+    const strengthBar = document.getElementById('strengthBar');
+    const serverMsg = document.getElementById('serverMsg');
+
+    const EMAIL_RX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const PHONE_RX = /^\d{10}$/;
+
+    function scorePassword(p){
+      let score=0;
+      if(p.length>=8) score+=1;
+      if(/[A-Z]/.test(p)) score+=1;
+      if(/[a-z]/.test(p)) score+=1;
+      if(/[0-9]/.test(p)) score+=1;
+      if(/[^A-Za-z0-9]/.test(p)) score+=1;
+      return score; // 0-5
+    }
+    function setStrength(score){
+      const pct = Math.round((score/5)*100);
+      strengthBar.style.width = pct + '%';
+      if(score<=1) strengthBar.style.background='linear-gradient(90deg,#ef4444,#f97316)';
+      else if(score<=3) strengthBar.style.background='linear-gradient(90deg,#f97316,#f59e0b)';
+      else strengthBar.style.background='linear-gradient(90deg,#10b981,#059669)';
+    }
+
+    /* Live hints (non-destructive) */
+    emailEl.addEventListener('input', e=>{
+      const v = e.target.value.trim();
+      document.getElementById('emailHint').textContent = v ? '' : 'Email is required';
+    });
+
+    nameEl.addEventListener('input', e=>{
+      document.getElementById('nameHint').textContent = e.target.value.trim() ? '' : 'Name is required';
+    });
+
+    phoneEl.addEventListener('input', e=>{
+      // allow typing formatting, but show hint if not 10 digits
+      const v = e.target.value.replace(/\D/g,'').slice(0,10);
+      e.target.value = v;
+      document.getElementById('phoneHint').textContent = v.length===10 ? '' : 'Phone must be 10 digits';
+    });
+
+    passEl.addEventListener('input', e=>{
+      const v = e.target.value;
+      const s = scorePassword(v);
+      setStrength(s);
+      const hints = [];
+      if(v.length < 8) hints.push('At least 8 characters');
+      if(!/[A-Z]/.test(v)) hints.push('1 uppercase letter');
+      if(!/[0-9]/.test(v)) hints.push('1 number');
+      if(!/[^A-Za-z0-9]/.test(v)) hints.push('1 symbol');
+      document.getElementById('passwordHint').textContent = hints.join(' · ');
+    });
+
+    /* Utility: normalize input by removing zero-width/NBSP characters and trimming */
+    function normalizeInput(s){
+      if(!s) return '';
+      return s.replace(/[\u200B\u00A0\u200C\u200D\uFEFF]/g, '').trim();
+    }
+
+    /* Submit handler: normalized + debug-friendly */
+    document.getElementById('signupForm').addEventListener('submit', async (ev)=>{
+      ev.preventDefault();
+      serverMsg.textContent = '';
+      serverMsg.className = 'feedback';
+
+      // raw reads
+      const rawName = document.getElementById('name').value || '';
+      const rawEmail = document.getElementById('email').value || '';
+      const rawPhone = document.getElementById('phone').value || '';
+      const rawPassword = document.getElementById('password').value || '';
+
+      // normalize
+      const name = normalizeInput(rawName);
+      const email = normalizeInput(rawEmail);
+      const phone = rawPhone.replace(/\D/g,'').slice(0,10); // digits only
+      const password = rawPassword; // preserve characters for strength check
+
+      // debug log so you can inspect in console
+      console.log('[DEBUG signup] name:', JSON.stringify(name), 'email:', JSON.stringify(email), 'phone:', JSON.stringify(phone), 'passwordLen:', password.length);
+
+      // light validation
+      let ok = true;
+      if(!name){ document.getElementById('nameHint').textContent='Enter your name'; ok=false; } else document.getElementById('nameHint').textContent='';
+
+      // simple structural email check (more tolerant)
+      const simpleEmailOk = email.includes('@') && email.indexOf('@') > 0 && email.indexOf('.') > email.indexOf('@') + 1;
+      if(!simpleEmailOk){ document.getElementById('emailHint').textContent='Enter a valid email'; ok=false; } else document.getElementById('emailHint').textContent='';
+
+      if(phone.length !== 10){ document.getElementById('phoneHint').textContent='Phone must be 10 digits'; ok=false; } else document.getElementById('phoneHint').textContent='';
+
+      const s = scorePassword(password);
+      if(s < 3){ document.getElementById('passwordHint').textContent='Password too weak'; ok=false; } else document.getElementById('passwordHint').textContent='';
+
+      if(!ok) return;
+
+      // build request payload (phoneNumber is what backend expects)
+      const payload = { name, email, phoneNumber: phone, password };
+
+      try {
+        const res = await fetch(`${API_BASE}/api/auth/signup`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+
+        // read raw text (helpful if server returns HTML or non-JSON)
+        const raw = await res.text();
+        let json = null;
+        try { json = JSON.parse(raw); } catch(e){ /* not JSON */ }
+
+        console.log('[DEBUG] signup response status:', res.status, 'raw:', raw);
+
+        if(res.ok){
+          serverMsg.textContent = (json && json.message) ? json.message : 'Account created successfully';
+          serverMsg.className = 'feedback ok';
+          // redirect to login served from backend after short delay
+          setTimeout(()=> window.location.href = `${API_BASE}/login.html`, 900);
+        } else {
+          // prefer structured message, else show raw
+          const msg = (json && (json.message || json.detail)) ? (json.message || json.detail) : (raw || 'Signup failed');
+          serverMsg.textContent = msg;
+          serverMsg.className = 'feedback error';
+        }
+      } catch(err){
+        console.error('Signup fetch error', err);
+        serverMsg.textContent = 'Network error — check backend';
+        serverMsg.className = 'feedback error';
+      }
+    });
+
+    /* navigation back to login (open from backend origin) */
+    document.getElementById('gotoLogin').addEventListener('click', ()=> {
+      window.location.href = `${API_BASE}/login.html`;
+    });
+</script>
+</body>
+</html>

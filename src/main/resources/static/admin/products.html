@@ -1,0 +1,1458 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Products · Inventory Admin Panel</title>
+
+    <!-- BOOTSTRAP 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <style>
+        :root {
+          --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+          /* light theme defaults */
+          --bg: #f3f4f6;
+          --bg-card: #ffffff;
+          --bg-sidebar: #0f172a;
+          --bg-sidebar-soft: #020617;
+
+          --border-soft: #e5e7eb;
+          --border-strong: #cbd5f5;
+
+          --text-main: #0f172a;
+          --text-soft: #4b5563;
+          --text-muted: #9ca3af;
+
+          --accent: #4f46e5;
+          --accent-soft: #e0e7ff;
+          --accent-strong: #4338ca;
+
+          --accent-warm: #f97316;
+          --danger: #dc2626;
+
+          --radius-card: 16px;
+          --radius-pill: 999px;
+
+          --shadow-soft: 0 14px 28px rgba(15,23,42,0.12);
+          --shadow-medium: 0 18px 40px rgba(15,23,42,0.16);
+
+          --transition-fast: 0.16s ease;
+          --transition-med: 0.22s ease;
+
+          --row-even: #f9fafb;
+          --row-odd: #eef2ff;
+        }
+
+        body[data-theme="dark"] {
+          --bg: #020617;
+          --bg-card: #020617;
+          --bg-sidebar: #020617;
+          --bg-sidebar-soft: #020617;
+
+          --border-soft: #1f2937;
+          --border-strong: #4b5563;
+
+          --text-main: #e5e7eb;
+          --text-soft: #cbd5f5;
+          --text-muted: #9ca3af;
+
+          --accent: #6366f1;
+          --accent-soft: rgba(79,70,229,0.15);
+          --accent-strong: #a5b4fc;
+
+          --accent-warm: #fb923c;
+          --danger: #f97373;
+
+          --shadow-soft: 0 20px 40px rgba(0,0,0,0.75);
+          --shadow-medium: 0 28px 60px rgba(0,0,0,0.85);
+
+          --row-even: rgba(15,23,42,0.95);
+          --row-odd: rgba(15,23,42,0.85);
+        }
+
+        * { box-sizing:border-box; }
+
+        html, body { height:100%; margin:0; }
+
+        body {
+          min-height:100vh;
+          font-family:var(--font-main);
+          background:
+            radial-gradient(circle at top left, rgba(79,70,229,0.15), transparent 55%),
+            radial-gradient(circle at bottom right, rgba(249,115,22,0.18), transparent 55%),
+            var(--bg);
+          color:var(--text-main);
+          display:flex;
+        }
+
+        .small { font-size:11px; color:var(--text-muted); }
+
+        /* SIDEBAR */
+        .sidebar {
+          width:220px;
+          background:linear-gradient(180deg,var(--bg-sidebar-soft),var(--bg-sidebar));
+          color:#e5e7eb;
+          padding:16px 14px 16px;
+          display:flex;
+          flex-direction:column;
+          gap:16px;
+          box-shadow:4px 0 22px rgba(15,23,42,0.75);
+          z-index:10;
+        }
+
+        .sidebar-header {
+          display:flex;
+          align-items:center;
+          gap:10px;
+          margin-bottom:6px;
+        }
+
+        .logo {
+          width:30px;
+          height:30px;
+          border-radius:10px;
+          background:conic-gradient(from 210deg,#4f46e5,#22c55e,#f97316,#4f46e5);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-weight:700;
+          font-size:14px;
+          color:#f9fafb;
+          box-shadow:0 0 18px rgba(129,140,248,0.9);
+        }
+
+        .brand-text {
+          display:flex;
+          flex-direction:column;
+          gap:2px;
+        }
+
+        .brand-title {
+          font-size:14px;
+          font-weight:600;
+          letter-spacing:0.08em;
+          text-transform:uppercase;
+        }
+
+        .brand-sub {
+          font-size:11px;
+          color:#9ca3af;
+        }
+
+        .nav {
+          margin-top:10px;
+          display:flex;
+          flex-direction:column;
+          gap:4px;
+        }
+
+        .nav-group-label {
+          font-size:11px;
+          color:#6b7280;
+          text-transform:uppercase;
+          letter-spacing:0.14em;
+          margin-bottom:4px;
+        }
+
+        .nav-item {
+          display:flex;
+          align-items:center;
+          gap:8px;
+          padding:7px 8px;
+          border-radius:10px;
+          color:#e5e7eb;
+          font-size:13px;
+          cursor:pointer;
+          transition:background var(--transition-fast), transform var(--transition-fast), color var(--transition-fast);
+        }
+
+        .nav-item-icon {
+          width:22px;
+          height:22px;
+          border-radius:999px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:14px;
+          background:rgba(15,23,42,0.6);
+        }
+
+        .nav-item span { flex:1; }
+
+        .nav-item:hover {
+          background:rgba(148,163,184,0.16);
+          transform:translateX(2px);
+        }
+
+        .nav-item.active {
+          background:rgba(79,70,229,0.25);
+          color:#e0e7ff;
+        }
+
+        .nav-item.active .nav-item-icon {
+          background:#4f46e5;
+        }
+
+        .sidebar-footer {
+          margin-top:auto;
+          border-top:1px solid rgba(31,41,55,0.8);
+          padding-top:8px;
+          font-size:11px;
+          color:#6b7280;
+        }
+
+        /* MAIN AREA */
+        .main {
+          flex:1;
+          padding:16px 18px 18px;
+          display:flex;
+          flex-direction:column;
+          gap:12px;
+          min-width:0;
+        }
+
+        .topbar {
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:10px;
+          flex-wrap:wrap;
+        }
+
+        .top-left {
+          display:flex;
+          flex-direction:column;
+          gap:4px;
+        }
+
+        .page-title {
+          font-size:20px;
+          font-weight:600;
+          display:flex;
+          align-items:center;
+          gap:8px;
+        }
+
+        .page-tag {
+          font-size:10px;
+          padding:2px 8px;
+          border-radius:var(--radius-pill);
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.85);
+          color:var(--text-muted);
+          text-transform:uppercase;
+          letter-spacing:0.12em;
+        }
+
+        body[data-theme="dark"] .page-tag {
+          background:rgba(15,23,42,0.9);
+          color:var(--text-soft);
+          border-color:var(--border-strong);
+        }
+
+        .welcome {
+          font-size:13px;
+          color:var(--text-soft);
+        }
+
+        .top-right {
+          display:flex;
+          align-items:center;
+          gap:8px;
+          flex-wrap:wrap;
+        }
+
+        .search-shell {
+          position:relative;
+          width:230px;
+        }
+
+        .search-input {
+          width:100%;
+          padding:6px 26px;
+          border-radius:999px;
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.95);
+          font-size:12px;
+          outline:none;
+          color:var(--text-main);
+          transition:border var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+        }
+
+        .search-input::placeholder { color:var(--text-muted); }
+
+        .search-input:focus {
+          border-color:var(--accent);
+          background:#ffffff;
+          box-shadow:0 0 0 1px var(--accent-soft);
+          transform:translateY(-1px);
+        }
+
+        body[data-theme="dark"] .search-input {
+          background:rgba(15,23,42,0.95);
+          border-color:var(--border-soft);
+          color:var(--text-soft);
+        }
+
+        .search-icon {
+          position:absolute;
+          left:8px;
+          top:50%;
+          transform:translateY(-50%);
+          font-size:12px;
+          color:var(--text-muted);
+        }
+
+        .theme-toggle {
+          width:50px;
+          height:24px;
+          border-radius:999px;
+          border:1px solid var(--border-soft);
+          background:#e5e7eb;
+          display:flex;
+          align-items:center;
+          padding:2px;
+          cursor:pointer;
+          position:relative;
+          transition:background var(--transition-fast), border var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .theme-knob {
+          width:20px;
+          height:20px;
+          border-radius:999px;
+          background:#ffffff;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:11px;
+          box-shadow:0 2px 5px rgba(15,23,42,0.3);
+          transform:translateX(0);
+          transition:transform var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+          color:#f97316;
+        }
+
+        body[data-theme="dark"] .theme-toggle {
+          background:#020617;
+          border-color:var(--border-strong);
+          box-shadow:0 10px 22px rgba(0,0,0,0.7);
+        }
+
+        body[data-theme="dark"] .theme-knob {
+          transform:translateX(24px);
+          background:#0f172a;
+          color:#facc15;
+        }
+
+        .user-pill {
+          display:flex;
+          align-items:center;
+          gap:6px;
+          padding:4px 8px;
+          border-radius:var(--radius-pill);
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.9);
+          font-size:11px;
+          color:var(--text-soft);
+        }
+
+        body[data-theme="dark"] .user-pill {
+          background:rgba(15,23,42,0.9);
+          color:var(--text-soft);
+        }
+
+        .user-avatar {
+          width:22px;
+          height:22px;
+          border-radius:999px;
+          background:linear-gradient(135deg,#4f46e5,#f97316);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:12px;
+          font-weight:600;
+          color:#f9fafb;
+        }
+
+        .btn-logout {
+          padding:5px 9px;
+          border-radius:var(--radius-pill);
+          border:1px solid rgba(248,113,113,0.8);
+          background:#fef2f2;
+          font-size:11px;
+          color:#b91c1c;
+          display:flex;
+          align-items:center;
+          gap:4px;
+          cursor:pointer;
+          transition:background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+        }
+
+        .btn-logout:hover {
+          background:#fee2e2;
+          transform:translateY(-1px);
+          box-shadow:0 6px 16px rgba(239,68,68,0.32);
+        }
+
+        body[data-theme="dark"] .btn-logout {
+          background:rgba(127,29,29,0.1);
+          color:#fecaca;
+        }
+
+        /* WORKSPACE */
+        .workspace {
+          border-radius:var(--radius-card);
+          background:var(--bg-card);
+          border:1px solid var(--border-soft);
+          box-shadow:var(--shadow-soft);
+          padding:14px 14px 16px;
+          min-height:0;
+          display:flex;
+          flex-direction:column;
+          gap:10px;
+        }
+
+        .workspace-header {
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:10px;
+          flex-wrap:wrap;
+        }
+
+        .workspace-title {
+          font-size:15px;
+          font-weight:600;
+        }
+
+        .workspace-sub {
+          font-size:12px;
+          color:var(--text-muted);
+        }
+
+        .inner-nav {
+          display:flex;
+          gap:6px;
+          flex-wrap:wrap;
+        }
+
+        .inner-tab-btn {
+          border-radius:var(--radius-pill);
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.9);
+          padding:5px 10px;
+          font-size:11px;
+          display:inline-flex;
+          align-items:center;
+          gap:6px;
+          cursor:pointer;
+          color:var(--text-soft);
+        }
+
+        .inner-tab-btn.active {
+          background:linear-gradient(90deg,#4f46e5,#22c55e);
+          border-color:transparent;
+          color:#f9fafb;
+          box-shadow:0 8px 18px rgba(79,70,229,0.35);
+        }
+
+        body[data-theme="dark"] .inner-tab-btn {
+          background:rgba(15,23,42,0.9);
+        }
+
+        .inner-body {
+          border-radius:12px;
+          border:1px dashed var(--border-soft);
+          padding:10px;
+          min-height:320px;
+          display:flex;
+          flex-direction:column;
+          gap:10px;
+        }
+
+        .inner-tab {
+          display:none;
+        }
+
+        .inner-tab.active {
+          display:block;
+          animation: tabFade 0.22s ease;
+        }
+
+        @keyframes tabFade {
+          from {
+            opacity:0;
+            transform:translateY(6px);
+          }
+          to {
+            opacity:1;
+            transform:translateY(0);
+          }
+        }
+
+        /* TABLE */
+        .table-wrap {
+          border-radius:10px;
+          border:1px solid var(--border-soft);
+          overflow:auto;
+          max-height:430px;
+        }
+
+        table {
+          width:100%;
+          border-collapse:separate;
+          border-spacing:0;
+          font-size:12px;
+        }
+
+        thead {
+          position:sticky;
+          top:0;
+          z-index:2;
+        }
+
+        thead th {
+          background:rgba(15,23,42,0.02);
+          padding:8px 10px;
+          text-align:left;
+          font-weight:600;
+          color:var(--text-muted);
+          border-bottom:1px solid var(--border-soft);
+          white-space:nowrap;
+        }
+
+        body[data-theme="dark"] thead th {
+          background:rgba(15,23,42,0.9);
+        }
+
+        tbody td {
+          padding:8px 10px;
+          border-bottom:1px solid rgba(148,163,184,0.25);
+          white-space:nowrap;
+          text-overflow:ellipsis;
+          overflow:hidden;
+          font-size:12px;
+        }
+
+        tbody tr:nth-child(odd) td {
+          background:var(--row-odd);
+        }
+
+        tbody tr:nth-child(even) td {
+          background:var(--row-even);
+        }
+
+        tbody tr:hover td {
+          filter:brightness(1.04);
+        }
+
+        .btn-table {
+          border-radius:999px;
+          padding:3px 8px;
+          font-size:10px;
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.9);
+          cursor:pointer;
+        }
+        body[data-theme="dark"] .btn-table {
+          background:rgba(15,23,42,0.9);
+          color:var(--text-soft);
+        }
+
+        .btn-table.danger {
+          border-color:#fecaca;
+          background:#fef2f2;
+          color:#b91c1c;
+        }
+        body[data-theme="dark"] .btn-table.danger {
+          background:rgba(127,29,29,0.3);
+          color:#fecaca;
+        }
+
+        .btn-accent {
+          padding:6px 12px;
+          border-radius:var(--radius-pill);
+          border:none;
+          background:linear-gradient(90deg,#4f46e5,#22c55e);
+          font-size:12px;
+          font-weight:500;
+          color:#f9fafb;
+          cursor:pointer;
+          display:inline-flex;
+          align-items:center;
+          gap:6px;
+          box-shadow:0 6px 14px rgba(79,70,229,0.35);
+          transition:transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .btn-accent:hover {
+          transform:translateY(-1px);
+          box-shadow:0 10px 20px rgba(79,70,229,0.55);
+        }
+
+        .btn-soft {
+          padding:5px 10px;
+          border-radius:var(--radius-pill);
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.9);
+          font-size:11px;
+          cursor:pointer;
+        }
+        body[data-theme="dark"] .btn-soft {
+          background:rgba(15,23,42,0.9);
+          color:var(--text-soft);
+        }
+
+        /* FORM */
+        .field label {
+          font-size:11px;
+          color:var(--text-muted);
+          margin-bottom:2px;
+        }
+        .field input,
+        .field select {
+          font-size:12px;
+        }
+
+        .form-section-label {
+          font-size:11px;
+          font-weight:600;
+          text-transform:uppercase;
+          letter-spacing:0.08em;
+          color:var(--text-muted);
+          margin-top:6px;
+        }
+
+        /* VIEW CARD */
+        .view-card {
+          max-width:420px;
+          border-radius:14px;
+          border:1px solid var(--border-soft);
+          background:rgba(248,250,252,0.96);
+          padding:14px 14px 12px;
+          box-shadow:0 12px 26px rgba(15,23,42,0.18);
+        }
+
+        body[data-theme="dark"] .view-card {
+          background:rgba(15,23,42,0.96);
+          box-shadow:0 18px 40px rgba(0,0,0,0.75);
+        }
+
+        .view-title {
+          font-size:15px;
+          font-weight:600;
+        }
+
+        .view-sub {
+          font-size:11px;
+          color:var(--text-muted);
+        }
+
+        .view-grid {
+          display:flex;
+          flex-direction:column;
+          gap:4px;
+          margin-top:8px;
+          font-size:12px;
+        }
+
+        .view-row-label {
+          font-size:11px;
+          color:var(--text-muted);
+        }
+
+        .view-row-value {
+          font-size:13px;
+          font-weight:500;
+        }
+
+        .badge-status {
+          font-size:11px;
+          padding:2px 8px;
+          border-radius:999px;
+          border:1px solid #bbf7d0;
+          background:#ecfdf3;
+          color:#166534;
+        }
+
+        .badge-status.inactive {
+          border-color:#fed7aa;
+          background:#fff7ed;
+          color:#9a3412;
+        }
+
+        body[data-theme="dark"] .badge-status {
+          background:rgba(22,163,74,0.15);
+          color:#bbf7d0;
+          border-color:rgba(34,197,94,0.75);
+        }
+
+        body[data-theme="dark"] .badge-status.inactive {
+          background:rgba(248,113,22,0.15);
+          border-color:rgba(248,150,68,0.85);
+          color:#fed7aa;
+        }
+
+        @media (max-width:720px) {
+          .topbar {
+            flex-direction:column;
+            align-items:flex-start;
+          }
+          .top-right .search-shell {
+            width:100%;
+          }
+        }
+    </style>
+</head>
+<body data-theme="light">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div>
+        <div class="sidebar-header">
+            <div class="logo">IN</div>
+            <div class="brand-text">
+                <div class="brand-title">Inventory</div>
+                <div class="brand-sub">Admin Panel</div>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <div class="nav-group-label">Main</div>
+
+            <div class="nav-item" onclick="window.location.href='./dashboard.html'">
+                <div class="nav-item-icon">📊</div>
+                <span>Dashboard</span>
+            </div>
+
+            <div class="nav-item active" onclick="window.location.href='./products.html'">
+                <div class="nav-item-icon">📦</div>
+                <span>Products</span>
+            </div>
+
+            <div class="nav-item" onclick="window.location.href='./staff.html'">
+                <div class="nav-item-icon">👥</div>
+                <span>Staff</span>
+            </div>
+
+            <div class="nav-item" onclick="window.location.href='./reports.html'">
+                <div class="nav-item-icon">📂</div>
+                <span>Reports</span>
+            </div>
+
+<!--            <div class="nav-item" onclick="window.location.href='./customer-order.html'">-->
+<!--                <div class="nav-item-icon">🛒</div>-->
+<!--                <span>Customer Orders</span>-->
+<!--            </div>-->
+        </nav>
+    </div>
+
+    <div class="sidebar-footer">
+        <div>Inventory Admin · v1.0</div>
+        <div class="small">Only admins can access this panel.</div>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+    <!-- TOP BAR -->
+    <header class="topbar">
+        <div class="top-left">
+            <div class="page-title">
+                Products / Stock
+                <span class="page-tag" id="pageTag">Workspace</span>
+            </div>
+            <div class="welcome">
+                Logged in as <span id="welcomeName">Admin</span>.
+            </div>
+        </div>
+
+        <div class="top-right">
+            <div class="search-shell">
+                <span class="search-icon">🔍</span>
+                <input id="globalSearch" class="search-input" type="search"
+                       placeholder="Search by ID, model, name, status…" />
+            </div>
+
+            <div id="themeToggle" class="theme-toggle" title="Dark / Light">
+                <div class="theme-knob">☀</div>
+            </div>
+
+            <div class="user-pill">
+                <div id="userAvatar" class="user-avatar">A</div>
+                <span id="userNameLabel">Admin</span>
+            </div>
+
+            <button id="logoutBtn" class="btn-logout" type="button">
+                <span>⏏</span>
+                <span>Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- WORKSPACE -->
+    <section class="workspace">
+        <div class="workspace-header">
+            <div>
+                <div class="workspace-title">Products Workspace</div>
+                <div class="workspace-sub">
+                    Manage items: list, add/edit form, and quick view in one smooth panel.
+                </div>
+            </div>
+            <div class="inner-nav">
+                <button class="inner-tab-btn active" data-tab="list">📋 List</button>
+                <button class="inner-tab-btn" data-tab="form">➕ Add / Edit</button>
+                <button class="inner-tab-btn" data-tab="view">🔎 View</button>
+            </div>
+        </div>
+
+        <div class="inner-body">
+            <!-- TAB: LIST -->
+            <div class="inner-tab active" id="tab-list">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="small">
+                        Showing live data from backend. Search above filters locally.
+                    </div>
+                    <button type="button" class="btn-accent" onclick="openCreate(); switchTab('form')">
+                        ＋ New Product
+                    </button>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th style="width:60px;">ID</th>
+                            <th>Model</th>
+                            <th>Name</th>
+                            <th>Price / Qty</th>
+                            <th>Unit</th>
+                            <th>Total Price</th>
+                            <th>Status</th>
+                            <th style="width:220px;">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: FORM -->
+            <div class="inner-tab" id="tab-form">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <div class="fw-semibold" style="font-size:14px;" id="formTitle">Add Product</div>
+                        <div class="small" id="formModeLabel">Mode: Create</div>
+                    </div>
+                    <button type="button" class="btn-soft" onclick="openCreate()">Clear</button>
+                </div>
+
+                <input type="hidden" id="m_id"/>
+
+                <div class="form-section-label">Basic Info</div>
+                <div class="row g-2 mt-1">
+                    <div class="col-md-6 field">
+                        <label for="m_name">Product Name</label>
+                        <input class="form-control form-control-sm" id="m_name" placeholder="Enter product name"/>
+                    </div>
+                    <div class="col-md-6 field">
+                        <label for="m_model">Product Code / Model</label>
+                        <input class="form-control form-control-sm" id="m_model" placeholder="Code / Model"/>
+                    </div>
+                </div>
+
+                <div class="form-section-label">Pricing & Stock</div>
+                <div class="row g-2 mt-1">
+                    <div class="col-md-4 field">
+                        <label for="m_price_per_quantity">Price per quantity</label>
+                        <input class="form-control form-control-sm" id="m_price_per_quantity" type="number" step="0.01" />
+                    </div>
+                    <div class="col-md-4 field">
+                        <label for="m_unit">Unit (stock)</label>
+                        <input class="form-control form-control-sm" id="m_unit" type="number" step="1" />
+                    </div>
+                    <div class="col-md-4 field">
+                        <label for="m_total_price">Total price</label>
+                        <input class="form-control form-control-sm" id="m_total_price" type="number" step="0.01" />
+                    </div>
+                </div>
+
+                <div class="form-section-label">Status</div>
+                <div class="row g-2 mt-1">
+                    <div class="col-md-3 field">
+                        <label for="m_status">Status</label>
+                        <select class="form-select form-select-sm" id="m_status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-3 gap-2">
+                    <button type="button" class="btn-soft" onclick="openCreate()">Reset</button>
+                    <button type="button" class="btn-accent" onclick="saveItem()">Save Product</button>
+                </div>
+            </div>
+
+            <!-- TAB: VIEW -->
+            <div class="inner-tab" id="tab-view">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="fw-semibold" style="font-size:14px;">Product View</div>
+                    <span class="small text-muted" id="viewHint">Nothing selected</span>
+                </div>
+
+                <div class="view-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="view-title" id="v_name">No product selected</div>
+                            <div class="view-sub">
+                                Code: <span id="v_model">—</span>
+                            </div>
+                        </div>
+                        <span id="v_status_badge" class="badge-status">—</span>
+                    </div>
+
+                    <div class="view-grid">
+                        <div>
+                            <div class="view-row-label">ID</div>
+                            <div class="view-row-value" id="v_id">—</div>
+                        </div>
+                        <div>
+                            <div class="view-row-label">Price per quantity</div>
+                            <div class="view-row-value" id="v_ppq">—</div>
+                        </div>
+                        <div>
+                            <div class="view-row-label">Unit (stock)</div>
+                            <div class="view-row-value" id="v_unit">—</div>
+                        </div>
+                        <div>
+                            <div class="view-row-label">Total price</div>
+                            <div class="view-row-value" id="v_total">—</div>
+                        </div>
+                        <div>
+                            <div class="view-row-label">Created at</div>
+                            <div class="view-row-value" id="v_created">—</div>
+                        </div>
+                        <div>
+                            <div class="view-row-label">Updated at</div>
+                            <div class="view-row-value" id="v_updated">—</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-2">
+                        <button type="button" class="btn-soft" onclick="switchTab('form'); editItemFromView();">
+                            ✏ Edit in form
+                        </button>
+                        <button type="button" class="btn-soft" onclick="switchTab('list')">
+                            ⬅ Back to list
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- SUCCESS TOAST -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 2000">
+    <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body" id="successMsg">
+                Success message here
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px;">
+            <div class="modal-header bg-danger text-white">
+                <h6 class="modal-title">Confirm Delete</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteMessage" class="mb-1">
+                    Are you sure you want to delete this item?
+                </p>
+                <small class="text-muted">This action cannot be undone.</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <button type="button" id="confirmDeleteBtn" class="btn btn-danger btn-sm">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BOOTSTRAP JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const API_ROOT    = 'http://localhost:8080';
+    const API_BASE    = '/api/stock';
+    const API_FALLBACK= API_ROOT + '/api/stock';
+
+    // ---------- TOKEN + AUTH GUARD ----------
+    function getToken(){
+      try {
+        return localStorage.getItem('auth_token')
+            || localStorage.getItem('token');
+      } catch (e) { return null; }
+    }
+
+    const token  = getToken();
+    const rights = (localStorage.getItem('rights') || '').toLowerCase();
+
+    if (!token) {
+      window.location.href = API_ROOT + '/login.html';
+    } else if (rights !== 'admin') {
+      alert('Only admin can access Products page');
+      window.location.href = API_ROOT + '/login.html';
+    }
+
+    // USER INFO IN TOPBAR
+    (function initUserInfo(){
+      let email = null;
+      try {
+        email = localStorage.getItem('user_email') || localStorage.getItem('email');
+      } catch(e){}
+
+      const name = email || 'admin';
+      const baseName = name.split('@')[0];
+
+      const welcome = document.getElementById('welcomeName');
+      const userLabel = document.getElementById('userNameLabel');
+      const avatar = document.getElementById('userAvatar');
+
+      if (welcome) welcome.textContent = baseName;
+      if (userLabel) userLabel.textContent = baseName;
+      if (avatar) avatar.textContent = baseName.charAt(0).toUpperCase();
+
+      const tag = document.getElementById('pageTag');
+      if (tag) tag.textContent = 'Workspace · ' + new Date().toLocaleDateString();
+    })();
+
+    // ---------- API HELPERS ----------
+    function buildAuthHeaders(extra){
+      const h = Object.assign({}, extra || {});
+      const t = getToken();
+      if (t) h['Authorization'] = 'Bearer ' + t;
+      return h;
+    }
+
+    async function apiCall(url, method='GET', body=null){
+      const headers = buildAuthHeaders(body ? {'Content-Type':'application/json'} : {});
+      return fetch(url, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : null
+      });
+    }
+
+    // ---------- THEME ----------
+    const bodyEl = document.body;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeKnob = themeToggle.querySelector('.theme-knob');
+
+    function applyTheme(theme) {
+      bodyEl.setAttribute('data-theme', theme);
+      themeKnob.textContent = theme === 'light' ? '☀' : '🌙';
+      try { localStorage.setItem('ui_theme', theme); } catch(e){}
+    }
+
+    (function initTheme() {
+      const stored = localStorage.getItem('ui_theme');
+      applyTheme(stored === 'dark' ? 'dark' : 'light');
+    })();
+
+    themeToggle.addEventListener('click', () => {
+      const current = bodyEl.getAttribute('data-theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      applyTheme(next);
+    });
+
+    // ---------- LOGOUT ----------
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      apiCall(API_ROOT + '/api/auth/logout','POST').finally(() => {
+        try {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('token');
+          localStorage.removeItem('rights');
+          localStorage.removeItem('user_email');
+          localStorage.removeItem('email');
+        } catch(e){}
+        window.location.href = API_ROOT + '/login.html';
+      });
+    });
+
+    // ---------- INNER TABS ----------
+    function switchTab(tabName){
+      document.querySelectorAll('.inner-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
+      });
+      document.querySelectorAll('.inner-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.id === 'tab-' + tabName);
+      });
+    }
+
+    document.querySelectorAll('.inner-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const t = btn.getAttribute('data-tab');
+        switchTab(t);
+      });
+    });
+
+    // ---------- TOAST ----------
+    function showSuccess(msg) {
+      const msgBox = document.getElementById('successMsg');
+      msgBox.textContent = msg;
+      const toastEl = document.getElementById('successToast');
+      const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+      toast.show();
+    }
+
+    // ---------- DELETE CONFIRM ----------
+    let DELETE_ID = null;
+
+    function askDelete(id, message="Do you really want to delete this product?") {
+      DELETE_ID = id;
+      document.getElementById("deleteMessage").textContent = message;
+      const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+      modal.show();
+    }
+
+    document.getElementById("confirmDeleteBtn").addEventListener("click", async () => {
+      if (DELETE_ID != null) {
+        await deleteItem(DELETE_ID);
+      }
+      const modalEl = document.getElementById('deleteConfirmModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+      DELETE_ID = null;
+    });
+
+    // ---------- UTIL ----------
+    function formatDate(val){
+      if(!val) return '—';
+      try {
+        const d = new Date(val);
+        if(!isNaN(d.getTime())) return d.toLocaleString();
+      } catch(e){}
+      return val;
+    }
+
+    function clearView(){
+      document.getElementById('v_name').textContent    = 'No product selected';
+      document.getElementById('v_model').textContent   = '—';
+      document.getElementById('v_id').textContent      = '—';
+      document.getElementById('v_ppq').textContent     = '—';
+      document.getElementById('v_unit').textContent    = '—';
+      document.getElementById('v_total').textContent   = '—';
+      document.getElementById('v_created').textContent = '—';
+      document.getElementById('v_updated').textContent = '—';
+
+      const badge = document.getElementById('v_status_badge');
+      badge.textContent = '—';
+      badge.className = 'badge-status';
+
+      document.getElementById('viewHint').textContent = 'Nothing selected';
+    }
+
+    function fillView(it){
+      const id    = it.productId ?? it.product_id ?? it.id ?? '—';
+      const model = it.model ?? '—';
+      const name  = it.productName ?? it.product_name ?? '—';
+      const ppq   = it.pricePerQuantity ?? it.price_per_quantity ?? '—';
+      const unit  = it.unit ?? '—';
+      const total = it.totalPrice ?? it.total_price ?? '—';
+      const status = (it.status ?? '—').toString();
+
+      document.getElementById('v_name').textContent    = name;
+      document.getElementById('v_model').textContent   = model;
+      document.getElementById('v_id').textContent      = id;
+      document.getElementById('v_ppq').textContent     = ppq;
+      document.getElementById('v_unit').textContent    = unit;
+      document.getElementById('v_total').textContent   = total;
+      document.getElementById('v_created').textContent = formatDate(it.createdDate);
+      document.getElementById('v_updated').textContent = formatDate(it.updatedDate);
+
+      const badge = document.getElementById('v_status_badge');
+      badge.textContent = status || '—';
+      const lower = status.toLowerCase();
+      badge.className = 'badge-status' + (lower === 'inactive' ? ' inactive' : '');
+
+      document.getElementById('viewHint').textContent = 'Selected from product list';
+    }
+
+    // ---------- DATA ----------
+    let ITEMS_CACHE = [];
+    let CURRENT_VIEW_ID = null;
+
+    async function fetchAllItems(){
+      try{
+        let res = await apiCall(`${API_BASE}/getAllItems`, 'GET');
+        if(!res.ok){
+          res = await apiCall(`${API_FALLBACK}/getAllItems`, 'GET');
+        }
+        const body = await res.json().catch(()=>null);
+        const list = Array.isArray(body) ? body : (body && Array.isArray(body.data) ? body.data : []);
+        return list || [];
+      }catch(e){
+        console.error(e);
+        return [];
+      }
+    }
+
+    async function loadItems(){
+      ITEMS_CACHE = await fetchAllItems();
+      applyItemsFilter();
+    }
+
+    function applyItemsFilter(){
+      const q = (document.getElementById('globalSearch').value || '').trim().toLowerCase();
+      let list = ITEMS_CACHE || [];
+
+      if (q) {
+        list = list.filter(it => {
+          const id    = (it.productId ?? it.product_id ?? it.id ?? '').toString();
+          const name  = it.productName ?? it.product_name ?? '';
+          const model = it.model ?? '';
+          const status= it.status ?? '';
+          const text = `${id} ${name} ${model} ${status}`.toLowerCase();
+          return text.includes(q);
+        });
+      }
+
+      renderItems(list);
+    }
+
+    function renderItems(list){
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+      if(!list || list.length === 0){
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 8;
+        td.textContent = 'No products found.';
+        td.style.color = 'var(--text-muted)';
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      list.forEach(it => {
+        const id    = it.productId ?? it.product_id ?? it.id ?? '';
+        const model = it.model ?? '';
+        const name  = it.productName ?? it.product_name ?? '';
+        const ppq   = it.pricePerQuantity ?? it.price_per_quantity ?? '';
+        const unit  = it.unit ?? '';
+        const total = it.totalPrice ?? it.total_price ?? '';
+        const status= it.status ?? '';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${id}</td>
+          <td title="${model}">${model}</td>
+          <td title="${name}">${name}</td>
+          <td>${ppq}</td>
+          <td>${unit}</td>
+          <td>${total}</td>
+          <td>${status}</td>
+          <td>
+            <div class="d-flex flex-wrap gap-1">
+              <button class="btn-table" type="button" onclick="viewItem('${id}')">View</button>
+              <button class="btn-table" type="button" onclick="editItem('${id}')">Edit</button>
+              <button class="btn-table danger" type="button"
+                      onclick="askDelete('${id}', 'Do you really want to delete this product?')">
+                Delete
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ---------- FORM ----------
+    function openCreate(){
+      document.getElementById('formTitle').textContent = 'Add Product';
+      document.getElementById('formModeLabel').textContent = 'Mode: Create';
+      document.getElementById('m_id').value = '';
+      ['m_model','m_name','m_price_per_quantity','m_unit','m_total_price'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('m_status').value = 'Active';
+    }
+
+    async function viewItem(id){
+      let it = ITEMS_CACHE.find(x => String(x.productId ?? x.product_id ?? x.id ?? '') === String(id));
+      if (!it) {
+        // fallback: fetch by id
+        try{
+          let res = await apiCall(`${API_BASE}/getItemById/${id}`, 'GET');
+          if(!res.ok){
+            res = await apiCall(`${API_FALLBACK}/getItemById/${id}`, 'GET');
+          }
+          if(res.ok){
+            it = await res.json();
+          }
+        }catch(e){
+          console.error(e);
+        }
+      }
+      if(!it){
+        alert('Product not found');
+        return;
+      }
+      CURRENT_VIEW_ID = it.productId ?? it.product_id ?? it.id ?? null;
+      fillView(it);
+      switchTab('view');
+    }
+
+    async function editItem(id){
+      let it = ITEMS_CACHE.find(x => String(x.productId ?? x.product_id ?? x.id ?? '') === String(id));
+      if (!it) {
+        try{
+          let res = await apiCall(`${API_BASE}/getItemById/${id}`, 'GET');
+          if(!res.ok){
+            res = await apiCall(`${API_FALLBACK}/getItemById/${id}`, 'GET');
+          }
+          if(res.ok){
+            it = await res.json();
+          }
+        }catch(e){
+          console.error(e);
+        }
+      }
+      if(!it){
+        alert('Product not found');
+        return;
+      }
+
+      document.getElementById('formTitle').textContent = 'Edit Product';
+      document.getElementById('formModeLabel').textContent = 'Mode: Edit';
+      document.getElementById('m_id').value = it.productId ?? it.product_id ?? it.id ?? '';
+      document.getElementById('m_model').value = it.model ?? '';
+      document.getElementById('m_name').value  = it.productName ?? it.product_name ?? '';
+      document.getElementById('m_price_per_quantity').value = it.pricePerQuantity ?? it.price_per_quantity ?? '';
+      document.getElementById('m_unit').value = it.unit ?? '';
+      document.getElementById('m_total_price').value = it.totalPrice ?? it.total_price ?? '';
+      document.getElementById('m_status').value = it.status ?? 'Active';
+
+      fillView(it);
+      CURRENT_VIEW_ID = it.productId ?? it.product_id ?? it.id ?? null;
+      switchTab('form');
+    }
+
+    function editItemFromView(){
+      if(!CURRENT_VIEW_ID) return;
+      editItem(CURRENT_VIEW_ID);
+    }
+
+    async function saveItem(){
+      const id = (document.getElementById('m_id').value || '').toString();
+      const payload = {
+        productName: (document.getElementById('m_name').value || '').trim(),
+        model: (document.getElementById('m_model').value || '').trim(),
+        pricePerQuantity: Number(document.getElementById('m_price_per_quantity').value) || 0,
+        unit: Number(document.getElementById('m_unit').value) || 0,
+        totalPrice: Number(document.getElementById('m_total_price').value) || 0,
+        status: document.getElementById('m_status').value || 'Active'
+      };
+
+      if(!payload.productName) return alert('Product name is required');
+      if(!payload.model)       return alert('Product code is required');
+
+      try{
+        let url, method;
+        if(id){
+          url = `${API_BASE}/updateItem/${id}`;
+          method = 'PUT';
+        } else {
+          url = `${API_BASE}/addNewItem`;
+          method = 'POST';
+        }
+
+        let res = await apiCall(url, method, payload);
+
+        if(res.status === 403){
+          alert('Only admin can modify items (403 Forbidden from backend).');
+          return;
+        }
+
+        if(!res.ok){
+          const fbUrl = url.replace(API_BASE, API_FALLBACK);
+          res = await apiCall(fbUrl, method, payload);
+        }
+
+        if(res.status === 403){
+          alert('Only admin can modify items (403 Forbidden from backend).');
+          return;
+        }
+
+        if(!res.ok){
+          const txt = await res.text().catch(()=>res.statusText);
+          throw new Error(txt || ('status ' + res.status));
+        }
+
+        await loadItems();
+        if(id){
+          showSuccess('Product updated successfully');
+        } else {
+          showSuccess('Product created successfully');
+        }
+        switchTab('list');
+      } catch(e){
+        alert('Save failed: ' + e.message);
+        console.error(e);
+      }
+    }
+
+    async function deleteItem(id){
+      try{
+        let res = await apiCall(`${API_BASE}/deleteItem/${id}`, 'DELETE');
+        if(res.status === 403){
+          alert('Only admin can delete items (403 Forbidden from backend).');
+          return;
+        }
+        if(!res.ok){
+          res = await apiCall(`${API_FALLBACK}/deleteItem/${id}`, 'DELETE');
+        }
+        if(res.status === 403){
+          alert('Only admin can delete items (403 Forbidden from backend).');
+          return;
+        }
+        if(!res.ok) throw new Error('Delete failed: ' + res.status);
+        await loadItems();
+        clearView();
+        showSuccess('Product deleted successfully');
+        switchTab('list');
+      } catch(e){
+        alert('Delete failed: ' + e.message);
+        console.error(e);
+      }
+    }
+
+    // ---------- SEARCH ----------
+    const globalSearch = document.getElementById('globalSearch');
+    globalSearch.addEventListener('input', () => applyItemsFilter());
+
+    // ---------- INIT ----------
+    openCreate();
+    clearView();
+    switchTab('list');
+    loadItems();
+</script>
+</body>
+</html>
