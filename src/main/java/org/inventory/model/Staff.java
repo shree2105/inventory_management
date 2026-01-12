@@ -1,11 +1,17 @@
 
 package org.inventory.model;
+import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "staff")
 public class Staff {
-    private Integer staffId;
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Integer staffId;
+
 
 
     @Size(min = 4, max = 50, message = "Password must be 4–50 characters")
@@ -44,9 +50,12 @@ public class Staff {
             flags = Pattern.Flag.CASE_INSENSITIVE,
             message = "Status must be Active or Inactive")
     private String status;
+@Column(updatable = false)
+private LocalDateTime createdDate;
 
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
+@Column
+private LocalDateTime updatedDate;
+
 
     public Staff() {}
 
