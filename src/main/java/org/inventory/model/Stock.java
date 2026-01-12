@@ -1,11 +1,17 @@
 package org.inventory.model;
+import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 
-public class Stock {
+@Entity
+@Table(name = "inventorystock")
 
-    private Integer productId;
+public class Stock {
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Integer productId;
+
 
     @NotBlank(message = "productName is required")
     @Size(max = 100, message = "productName must be at most 100 characters")
@@ -31,10 +37,12 @@ public class Stock {
     @Pattern(regexp = "^(active|inactive)$", flags = Pattern.Flag.CASE_INSENSITIVE,
             message = "status must be 'active' or 'inactive'")
     private String status;
+@Column(updatable = false)
+private LocalDateTime createdDate;
 
-    // DB-managed timestamps
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
+@Column
+private LocalDateTime updatedDate;
+
 
     public Stock() {}
 
